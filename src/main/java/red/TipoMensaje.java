@@ -1,0 +1,17 @@
+package red;
+
+public enum TipoMensaje {
+    CREATE_MATCH,
+    JOIN_MATCH,
+    SELECT_ANIMAL,
+    MOVE_ANIMALS,
+    ATTACK,
+    VIEW_ZONE,
+    MATCH_CREATED,
+    MATCH_JOINED,
+    ERROR,
+    ANIMAL_SELECTION,
+    GAME_STARTED,
+    STATE_UPDATE,
+    GAME_OVER
+}

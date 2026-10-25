@@ -2,6 +2,10 @@
 
 Repo jungle-attack-server. El servidor es la autoridad: calcula movimiento, combate, tazas, bonos y victoria, y a cada cliente le manda solo lo que puede ver. La spec del cliente está en su propio doc. Cada paquete tiene su clase Main para pruebas unitarias.
 
+## Estructura Java
+
+El esqueleto de clases está en `src/main/java`, organizado en los paquetes `util`, `model`, `mapa`, `game`, `partida` y `red`. Las firmas están declaradas; los métodos pendientes lanzan `UnsupportedOperationException` hasta que se implemente su lógica. Las configuraciones que el spec no define quedan como marcadores por completar. El proyecto usa Maven y Gson; compila con `mvn compile`.
+
 ## Patrón Observer y Utilidades (util)
 
 Mismo paquete que en jungle-attack-client.
@@ -631,69 +635,59 @@ Prueba unitaria independiente para verificar la ida y vuelta a JSON de cada tipo
 Estáticos: todas las constantes de Constantes, ServerMain.main(), getInstancia() de CodificadorJson, los métodos de FabricaMensajes, Ruta.crear() y GeneradorCodigo.normalizar(). No hay estado estático mutable.
 
 ---
-## Diagrama UML
-```
-@startuml JungleAttackServer
+## Diagrama Mermaid
 
-title Jungle Attack Server - Diagrama de Clases
-
-scale max 3000 width
-skinparam packageStyle rectangle
-skinparam linetype ortho
-hide empty members
-
-package "util - Utilidades" as Util {
-    interface IObserver {
+```mermaid
+classDiagram
+    %% util - Utilidades
+    namespace Util {
+        class IObserver {
         +update(source: Object, ob: Observable): void
-    }
-
-    abstract class Observable {
+        }
+        class Observable {
         #observers: Vector
         +addObserver(ob: IObserver): void
         +removeObserver(ob: IObserver): void
         +notifyObservers(source: Object): void
+        }
+        class Constantes {
+        TAM_MANADA_JUGADOR = 10$
+        ENERGIA_JUGADOR = 20$
+        ENERGIA_MAX_JUGADOR = 20$
+        DANIO_JUGADOR = 2$
+        TAM_MANADA_BOT = 4$
+        ENERGIA_BOT = 10$
+        DANIO_BOT = 1$
+        CANTIDAD_ESPECIES = 7$
+        COOLDOWN_ATAQUE_MS = 1000$
+        RADIO_ENCUENTRO$
+        BOTS_POR_BONO = 2$
+        BONO_ENERGIA = 1$
+        CANTIDAD_ZONAS = 12$
+        CANTIDAD_TAZAS = 10$
+        BONO_DANIO_TAZA = 1$
+        RADIO_TAZA$
+        RADIO_BANDERA$
+        VELOCIDAD_ANIMAL$
+        TICK_MS$
+        LARGO_CODIGO = 4$
+        CARACTERES_CODIGO: String$
+        PUERTO: int$
+        CHARSET: String$
+        }
+        class MainUtil {
+        +main(args: String[]): void$
+        }
     }
-
-    class Constantes <<utility>> {
-        {static} TAM_MANADA_JUGADOR = 10
-        {static} ENERGIA_JUGADOR = 20
-        {static} ENERGIA_MAX_JUGADOR = 20
-        {static} DANIO_JUGADOR = 2
-        {static} TAM_MANADA_BOT = 4
-        {static} ENERGIA_BOT = 10
-        {static} DANIO_BOT = 1
-        {static} CANTIDAD_ESPECIES = 7
-        {static} COOLDOWN_ATAQUE_MS = 1000
-        {static} RADIO_ENCUENTRO
-        {static} BOTS_POR_BONO = 2
-        {static} BONO_ENERGIA = 1
-        {static} CANTIDAD_ZONAS = 12
-        {static} CANTIDAD_TAZAS = 10
-        {static} BONO_DANIO_TAZA = 1
-        {static} RADIO_TAZA
-        {static} RADIO_BANDERA
-        {static} VELOCIDAD_ANIMAL
-        {static} TICK_MS
-        {static} LARGO_CODIGO = 4
-        {static} CARACTERES_CODIGO: String
-        {static} PUERTO: int
-        {static} CHARSET: String
-    }
-
-    class MainUtil {
-        {static} +main(args: String[]): void
-    }
-}
-
-package "model - Modelo" as Model {
-    class Punto {
+    %% model - Modelo
+    namespace Model {
+        class Punto {
         -x: double
         -y: double
         +distancia(otro: Punto): double
         +moverHacia(destino: Punto, maxDistancia: double): Punto
-    }
-
-    enum Especie {
+        }
+        class Especie {
         JAGUAR
         DANTA
         PEREZOSO
@@ -701,21 +695,18 @@ package "model - Modelo" as Model {
         TUCAN
         COCODRILO
         PIZOTE
-        --
         -nombre: String
         -rutaSvg: String
-    }
-
-    abstract class EntidadJuego {
+        }
+        class EntidadJuego {
         #id: int
         #posicion: Punto
         #idZona: int
         +getId(): int
         +getPos(): Punto
         +estaEnRadio(otra: EntidadJuego, radio: double): boolean
-    }
-
-    abstract class Animal {
+        }
+        class Animal {
         #especie: Especie
         #energia: int
         #manada: Manada
@@ -728,24 +719,21 @@ package "model - Modelo" as Model {
         +setRuta(ruta: Ruta): void
         +avanzar(deltaSeg: double): void
         +addEnergia(valor: int): void
-        {abstract} +getEnergiaMax(): int
-        {abstract} +esBot(): boolean
-    }
-
-    class AnimalJugador {
+        +getEnergiaMax(): int
+        +esBot(): boolean
+        }
+        class AnimalJugador {
         -objetivo: Animal
         +setObjetivo(objetivo: Animal): void
         +limpiarObjetivo(): void
         +getEnergiaMax(): int
         +esBot(): boolean
-    }
-
-    class AnimalBot {
+        }
+        class AnimalBot {
         +getEnergiaMax(): int
         +esBot(): boolean
-    }
-
-    abstract class Manada {
+        }
+        class Manada {
         #especie: Especie
         #miembros: Vector
         #danio: int
@@ -753,99 +741,86 @@ package "model - Modelo" as Model {
         +estaEliminada(): boolean
         +addDanio(valor: int): void
         +crearMiembros(zona: Zona, random: Random): void
-        {abstract} +crearMiembro(id: int, pos: Punto): Animal
-    }
-
-    class ManadaJugador {
+        +crearMiembro(id: int, pos: Punto): Animal
+        }
+        class ManadaJugador {
         -dueno: Jugador
         +crearMiembro(id: int, pos: Punto): Animal
         +aplicarBonoEnergia(valor: int): void
-    }
-
-    class ManadaBot {
+        }
+        class ManadaBot {
         -idZonaInicial: int
         +crearMiembro(id: int, pos: Punto): Animal
-    }
-
-    class TazaCafe {
+        }
+        class TazaCafe {
         -consumida: boolean
         +consumir(manada: ManadaJugador): boolean
-    }
-
-    class Bandera {
+        }
+        class Bandera {
         -dueno: Jugador
         -color: String
         +esTocadaPor(animal: Animal): boolean
+        }
+        class MainModel {
+        +main(args: String[]): void$
+        }
     }
-
-    class MainModel {
-        {static} +main(args: String[]): void
-    }
-}
-
-package "mapa - Mapa y rutas" as MapaLayer {
-    class Zona {
+    %% mapa - Mapa y rutas
+    namespace MapaLayer {
+        class Zona {
         -id: int
         -limites: Rectangle2D
         -vecinos: Vector
         +contiene(p: Punto): boolean
         +puntoAleatorio(random: Random): Punto
-    }
-
-    class Camino {
+        }
+        class Camino {
         -idZonaA: int
         -idZonaB: int
         -puntos: Vector
         -largo: double
         +conecta(zonaA: int, zonaB: int): boolean
         +puntoAleatorio(random: Random): Punto
-    }
-
-    class Mapa {
+        }
+        class Mapa {
         -zonas: Vector
         -caminos: Vector
         +getZona(id: int): Zona
         +zonaEn(p: Punto): Zona
         +getVecinos(idZona: int): Vector
         +getCamino(zonaA: int, zonaB: int): Camino
-    }
-
-    class ConstructorMapa <<Builder>> {
+        }
+        class ConstructorMapa {
         -zonas: Vector
         -caminos: Vector
         +agregarZona(zona: Zona): ConstructorMapa
         +conectar(zonaA: int, zonaB: int, puntos: Vector): ConstructorMapa
         +construir(): Mapa
-    }
-
-    interface IBuscadorRuta {
+        }
+        class IBuscadorRuta {
         +buscarRuta(mapa: Mapa, zonaOrigen: int, zonaDestino: int): Vector
-    }
-
-    class BuscadorBFS {
+        }
+        class BuscadorBFS {
         +buscarRuta(mapa: Mapa, zonaOrigen: int, zonaDestino: int): Vector
-    }
-
-    class BuscadorDijkstra {
+        }
+        class BuscadorDijkstra {
         +buscarRuta(mapa: Mapa, zonaOrigen: int, zonaDestino: int): Vector
-    }
-
-    class Ruta {
+        }
+        class Ruta {
         -puntos: Vector
         -indice: int
-        {static} +crear(mapa: Mapa, zonas: Vector, inicio: Punto, destino: Punto): Ruta
+        +crear(mapa: Mapa, zonas: Vector, inicio: Punto, destino: Punto): Ruta$
         +puntoActual(): Punto
         +avanzar(): void
         +terminada(): boolean
+        }
+        class MainMapa {
+        +main(args: String[]): void$
+        }
     }
-
-    class MainMapa {
-        {static} +main(args: String[]): void
-    }
-}
-
-package "game - Lógica del juego" as Game {
-    class Jugador {
+    %% game - Lógica del juego
+    namespace Game {
+        class Jugador {
         -nickname: String
         -conexion: ManejadorCliente
         -especie: Especie
@@ -859,9 +834,8 @@ package "game - Lógica del juego" as Game {
         +registrarTaza(): void
         +puedeVer(idZona: int): boolean
         +getNickname(): String
-    }
-
-    class MundoJuego {
+        }
+        class MundoJuego {
         -mapa: Mapa
         -manadasJugador: Vector
         -manadasBot: Vector
@@ -875,39 +849,35 @@ package "game - Lógica del juego" as Game {
         +getGanador(): Jugador
         +terminar(ganador: Jugador): void
         +update(source: Object, ob: Observable): void
-    }
-
-    class InicializadorMundo {
+        }
+        class InicializadorMundo {
         -random: Random
         +elegirZonasIniciales(mapa: Mapa, cantidad: int): Vector
         +colocarTazas(mundo: MundoJuego): void
         +colocarBanderas(mundo: MundoJuego): void
-    }
-
-    interface IReglaJuego {
+        }
+        class IReglaJuego {
         +aplicar(mundo: MundoJuego, ahora: long, deltaSeg: double): void
-    }
-
-    class ReglaMovimiento {
+        }
+        class ReglaMovimiento {
         +aplicar(mundo: MundoJuego, ahora: long, deltaSeg: double): void
-    }
-    class ReglaAtaqueBot {
+        }
+        class ReglaAtaqueBot {
         +aplicar(mundo: MundoJuego, ahora: long, deltaSeg: double): void
-    }
-    class ReglaAtaqueJugador {
+        }
+        class ReglaAtaqueJugador {
         +aplicar(mundo: MundoJuego, ahora: long, deltaSeg: double): void
-    }
-    class ReglaTazaCafe {
+        }
+        class ReglaTazaCafe {
         +aplicar(mundo: MundoJuego, ahora: long, deltaSeg: double): void
-    }
-    class ReglaBonoEnergia {
+        }
+        class ReglaBonoEnergia {
         +aplicar(mundo: MundoJuego, ahora: long, deltaSeg: double): void
-    }
-    class ReglaVictoria {
+        }
+        class ReglaVictoria {
         +aplicar(mundo: MundoJuego, ahora: long, deltaSeg: double): void
-    }
-
-    class CicloJuego {
+        }
+        class CicloJuego {
         -mundo: MundoJuego
         -reglas: Vector
         -reloj: Clock
@@ -916,41 +886,36 @@ package "game - Lógica del juego" as Game {
         +run(): void
         +tick(ahora: long): void
         +detener(): void
-    }
-
-    class ServicioVisibilidad {
+        }
+        class ServicioVisibilidad {
         +zonasVisibles(jugador: Jugador): Vector
         +crearSnapshot(mundo: MundoJuego, jugador: Jugador): EstadoVisible
+        }
+        class MainGame {
+        +main(args: String[]): void$
+        }
     }
-
-    class MainGame {
-        {static} +main(args: String[]): void
-    }
-}
-
-package "partida - Administración de partidas" as PartidaLayer {
-    enum EstadoPartida {
+    %% partida - Administración de partidas
+    namespace PartidaLayer {
+        class EstadoPartida {
         ESPERANDO_JUGADOR
         ELIGIENDO_ANIMALES
         EN_JUEGO
         TERMINADA
-    }
-
-    class GeneradorCodigo {
+        }
+        class GeneradorCodigo {
         -random: Random
         +generar(existentes: Set): String
-        {static} +normalizar(codigo: String): String
-    }
-
-    class SelectorEspecies {
+        +normalizar(codigo: String): String$
+        }
+        class SelectorEspecies {
         -disponibles: Set
         -elecciones: Map
         +elegir(jugador: Jugador, especie: Especie): boolean
         +todosEligieron(): boolean
         +especiesBot(): Vector
-    }
-
-    class Partida {
+        }
+        class Partida {
         -codigo: String
         -estado: EstadoPartida
         -jugadores: Vector
@@ -966,9 +931,8 @@ package "partida - Administración de partidas" as PartidaLayer {
         +terminar(ganador: Jugador): void
         +manejarDesconexion(jugador: Jugador): void
         +update(source: Object, ob: Observable): void
-    }
-
-    class AdministradorPartidas {
+        }
+        class AdministradorPartidas {
         -partidas: ConcurrentHashMap
         -generador: GeneradorCodigo
         +crearPartida(anfitrion: Jugador): Partida
@@ -976,15 +940,14 @@ package "partida - Administración de partidas" as PartidaLayer {
         +buscar(codigo: String): Partida
         +eliminar(codigo: String): void
         +getCantidadActivas(): int
+        }
+        class MainPartida {
+        +main(args: String[]): void$
+        }
     }
-
-    class MainPartida {
-        {static} +main(args: String[]): void
-    }
-}
-
-package "red - Comunicación y protocolo" as Red {
-    enum TipoMensaje {
+    %% red - Comunicación y protocolo
+    namespace Red {
+        class TipoMensaje {
         CREATE_MATCH
         JOIN_MATCH
         SELECT_ANIMAL
@@ -998,63 +961,59 @@ package "red - Comunicación y protocolo" as Red {
         GAME_STARTED
         STATE_UPDATE
         GAME_OVER
-    }
-
-    class Mensaje {
+        }
+        class Mensaje {
         -tipo: TipoMensaje
         -payload: JsonObject
         +getTipo(): TipoMensaje
         +getPayload(tipo: Class): Object
-    }
-
-    class CodificadorJson <<Singleton>> {
-        -{static} instancia: CodificadorJson
+        }
+        class CodificadorJson {
+        - instancia: CodificadorJson$
         -gson: Gson
-        {static} +getInstancia(): CodificadorJson
+        +getInstancia(): CodificadorJson$
         +codificar(mensaje: Mensaje): String
         +decodificar(linea: String): Mensaje
-    }
-
-    class FabricaMensajes <<Factory>> {
-        {static} +crear(tipo: TipoMensaje, payload: Object): Mensaje
-        {static} +error(razon: String): Mensaje
-    }
-
-    class DatosCrearPartida <<DTO>> {
+        }
+        class FabricaMensajes {
+        +crear(tipo: TipoMensaje, payload: Object): Mensaje$
+        +error(razon: String): Mensaje$
+        }
+        class DatosCrearPartida {
         +nickname: String
-    }
-    class DatosUnirse <<DTO>> {
+        }
+        class DatosUnirse {
         +nickname: String
         +codigo: String
-    }
-    class DatosElegirAnimal <<DTO>> {
+        }
+        class DatosElegirAnimal {
         +especie: Especie
-    }
-    class DatosMover <<DTO>> {
+        }
+        class DatosMover {
         +idsAnimales: Vector
         +destinoX: double
         +destinoY: double
-    }
-    class DatosAtacar <<DTO>> {
+        }
+        class DatosAtacar {
         +idsAnimales: Vector
         +idObjetivo: int
-    }
-    class DatosVerZona <<DTO>> {
+        }
+        class DatosVerZona {
         +idZona: int
-    }
-    class DatosPartidaCreada <<DTO>> {
+        }
+        class DatosPartidaCreada {
         +codigo: String
-    }
-    class DatosSeleccion <<DTO>> {
+        }
+        class DatosSeleccion {
         +disponibles: Vector
         +eleccionRival: Especie
-    }
-    class DatosInicio <<DTO>> {
+        }
+        class DatosInicio {
         +mapa: VistaMapa
         +zonaPropia: int
         +manada: Vector
-    }
-    class EstadoVisible <<DTO>> {
+        }
+        class EstadoVisible {
         +idZona: int
         +animales: Vector
         +tazas: Vector
@@ -1063,15 +1022,15 @@ package "red - Comunicación y protocolo" as Red {
         +danio: int
         +tazasConsumidas: int
         +botsEliminados: int
-    }
-    class ResumenPartida <<DTO>> {
+        }
+        class ResumenPartida {
         +ganador: String
         +botsEliminados: Map
         +animalesPerdidos: Map
         +tazas: Map
         +duracionSeg: long
-    }
-    class VistaAnimal <<DTO>> {
+        }
+        class VistaAnimal {
         +id: int
         +especie: Especie
         +esBot: boolean
@@ -1079,42 +1038,38 @@ package "red - Comunicación y protocolo" as Red {
         +x: double
         +y: double
         +energia: int
-    }
-    class VistaMapa <<DTO>> {
+        }
+        class VistaMapa {
         +zonas: Vector
         +caminos: Vector
-    }
-
-    interface IComando {
+        }
+        class IComando {
         +ejecutar(cliente: ManejadorCliente, mensaje: Mensaje): void
-    }
-
-    class ComandoCrearPartida {
+        }
+        class ComandoCrearPartida {
         +ejecutar(cliente: ManejadorCliente, mensaje: Mensaje): void
-    }
-    class ComandoUnirse {
+        }
+        class ComandoUnirse {
         +ejecutar(cliente: ManejadorCliente, mensaje: Mensaje): void
-    }
-    class ComandoElegirAnimal {
+        }
+        class ComandoElegirAnimal {
         +ejecutar(cliente: ManejadorCliente, mensaje: Mensaje): void
-    }
-    class ComandoMover {
+        }
+        class ComandoMover {
         +ejecutar(cliente: ManejadorCliente, mensaje: Mensaje): void
-    }
-    class ComandoAtacar {
+        }
+        class ComandoAtacar {
         +ejecutar(cliente: ManejadorCliente, mensaje: Mensaje): void
-    }
-    class ComandoVerZona {
+        }
+        class ComandoVerZona {
         +ejecutar(cliente: ManejadorCliente, mensaje: Mensaje): void
-    }
-
-    class EnrutadorMensajes <<Command Invoker>> {
+        }
+        class EnrutadorMensajes {
         -comandos: Map
         +registrar(tipo: TipoMensaje, comando: IComando): void
         +enrutar(cliente: ManejadorCliente, mensaje: Mensaje): void
-    }
-
-    class ManejadorCliente {
+        }
+        class ManejadorCliente {
         -socket: Socket
         -lector: BufferedReader
         -escritor: PrintWriter
@@ -1123,9 +1078,8 @@ package "red - Comunicación y protocolo" as Red {
         +run(): void
         +enviar(mensaje: Mensaje): void
         +cerrar(): void
-    }
-
-    class ServidorJuego {
+        }
+        class ServidorJuego {
         -puerto: int
         -serverSocket: ServerSocket
         -hilos: ExecutorService
@@ -1134,145 +1088,133 @@ package "red - Comunicación y protocolo" as Red {
         -activo: boolean
         +iniciar(): void
         +detener(): void
+        }
+        class ServerMain {
+        +main(args: String[]): void$
+        }
+        class MainRed {
+        +main(args: String[]): void$
+        }
     }
-
-    class ServerMain {
-        {static} +main(args: String[]): void
-    }
-
-    class MainRed {
-        {static} +main(args: String[]): void
-    }
-}
-
-Observable <|-- EntidadJuego
-Observable <|-- MundoJuego
-EntidadJuego <|-- Animal
-EntidadJuego <|-- TazaCafe
-EntidadJuego <|-- Bandera
-Animal <|-- AnimalJugador
-Animal <|-- AnimalBot
-Manada <|-- ManadaJugador
-Manada <|-- ManadaBot
-IObserver <|.. MundoJuego
-IObserver <|.. Partida
-IBuscadorRuta <|.. BuscadorBFS
-IBuscadorRuta <|.. BuscadorDijkstra
-IReglaJuego <|.. ReglaMovimiento
-IReglaJuego <|.. ReglaAtaqueBot
-IReglaJuego <|.. ReglaAtaqueJugador
-IReglaJuego <|.. ReglaTazaCafe
-IReglaJuego <|.. ReglaBonoEnergia
-IReglaJuego <|.. ReglaVictoria
-IComando <|.. ComandoCrearPartida
-IComando <|.. ComandoUnirse
-IComando <|.. ComandoElegirAnimal
-IComando <|.. ComandoMover
-IComando <|.. ComandoAtacar
-IComando <|.. ComandoVerZona
-Runnable <|.. CicloJuego
-Runnable <|.. ManejadorCliente
-
-EntidadJuego *-- Punto : posicion
-Animal --> Especie
-Animal --> Manada
-Animal --> Ruta
-AnimalJugador --> Animal : objetivo
-Manada --> Especie
-Manada o-- Animal : miembros
-ManadaJugador --> Jugador : dueno
-TazaCafe ..> ManadaJugador : consumir
-Bandera --> Jugador : dueno
-Bandera ..> Animal : detectar
-
-Mapa o-- Zona
-Mapa o-- Camino
-Zona ..> Punto
-Camino ..> Punto
-ConstructorMapa ..> Zona
-ConstructorMapa ..> Camino
-ConstructorMapa ..> Mapa : construir
-BuscadorBFS ..> Mapa
-BuscadorDijkstra ..> Mapa
-Ruta ..> Mapa
-Ruta o-- Punto
-
-Jugador --> ManadaJugador
-Jugador --> Bandera
-Jugador --> Especie
-Jugador --> ManejadorCliente
-MundoJuego --> Mapa
-MundoJuego o-- ManadaJugador
-MundoJuego o-- ManadaBot
-MundoJuego o-- TazaCafe
-MundoJuego o-- Bandera
-MundoJuego --> Jugador : ganador
-InicializadorMundo ..> MundoJuego
-InicializadorMundo ..> Mapa
-CicloJuego --> MundoJuego
-CicloJuego o-- IReglaJuego : reglas
-ServicioVisibilidad ..> MundoJuego
-ServicioVisibilidad ..> Jugador
-ServicioVisibilidad ..> EstadoVisible
-
-Partida --> EstadoPartida
-Partida o-- Jugador
-Partida --> SelectorEspecies
-Partida --> MundoJuego
-Partida --> CicloJuego
-Partida ..> ResumenPartida
-SelectorEspecies ..> Jugador
-SelectorEspecies ..> Especie
-AdministradorPartidas o-- Partida
-AdministradorPartidas --> GeneradorCodigo
-
-Mensaje --> TipoMensaje
-Mensaje ..> CodificadorJson
-FabricaMensajes ..> Mensaje
-FabricaMensajes ..> TipoMensaje
-CodificadorJson ..> Mensaje
-Mensaje ..> DatosCrearPartida
-Mensaje ..> DatosUnirse
-Mensaje ..> DatosElegirAnimal
-Mensaje ..> DatosMover
-Mensaje ..> DatosAtacar
-Mensaje ..> DatosVerZona
-Mensaje ..> DatosPartidaCreada
-Mensaje ..> DatosSeleccion
-Mensaje ..> DatosInicio
-Mensaje ..> EstadoVisible
-Mensaje ..> ResumenPartida
-DatosInicio --> VistaMapa
-DatosInicio ..> VistaAnimal
-EstadoVisible ..> VistaAnimal
-EstadoVisible ..> Punto
-VistaMapa ..> Zona
-VistaMapa ..> Camino
-EnrutadorMensajes o-- IComando : comandos
-ComandoCrearPartida ..> AdministradorPartidas
-ComandoUnirse ..> AdministradorPartidas
-ComandoElegirAnimal ..> Partida
-ComandoMover ..> Animal
-ComandoAtacar ..> Animal
-ComandoVerZona ..> ServicioVisibilidad
-ComandoCrearPartida ..> DatosCrearPartida
-ComandoUnirse ..> DatosUnirse
-ComandoElegirAnimal ..> DatosElegirAnimal
-ComandoMover ..> DatosMover
-ComandoAtacar ..> DatosAtacar
-ComandoVerZona ..> DatosVerZona
-ManejadorCliente --> EnrutadorMensajes
-ManejadorCliente --> Jugador
-ManejadorCliente ..> Mensaje
-ServidorJuego o-- ManejadorCliente : crea
-ServidorJuego --> AdministradorPartidas
-ServidorJuego --> EnrutadorMensajes
-ServerMain ..> ServidorJuego
-EntidadJuego ..> IObserver : notifica cambios
-MundoJuego ..> IObserver : notifica cambios
-MundoJuego ..> Partida : eventos de partida
-
-@enduml
+    Observable <|-- EntidadJuego
+    Observable <|-- MundoJuego
+    EntidadJuego <|-- Animal
+    EntidadJuego <|-- TazaCafe
+    EntidadJuego <|-- Bandera
+    Animal <|-- AnimalJugador
+    Animal <|-- AnimalBot
+    Manada <|-- ManadaJugador
+    Manada <|-- ManadaBot
+    IObserver <|.. MundoJuego
+    IObserver <|.. Partida
+    IBuscadorRuta <|.. BuscadorBFS
+    IBuscadorRuta <|.. BuscadorDijkstra
+    IReglaJuego <|.. ReglaMovimiento
+    IReglaJuego <|.. ReglaAtaqueBot
+    IReglaJuego <|.. ReglaAtaqueJugador
+    IReglaJuego <|.. ReglaTazaCafe
+    IReglaJuego <|.. ReglaBonoEnergia
+    IReglaJuego <|.. ReglaVictoria
+    IComando <|.. ComandoCrearPartida
+    IComando <|.. ComandoUnirse
+    IComando <|.. ComandoElegirAnimal
+    IComando <|.. ComandoMover
+    IComando <|.. ComandoAtacar
+    IComando <|.. ComandoVerZona
+    Runnable <|.. CicloJuego
+    Runnable <|.. ManejadorCliente
+    EntidadJuego *-- Punto : posicion
+    Animal --> Especie
+    Animal --> Manada
+    Animal --> Ruta
+    AnimalJugador --> Animal : objetivo
+    Manada --> Especie
+    Manada o-- Animal : miembros
+    ManadaJugador --> Jugador : dueno
+    TazaCafe ..> ManadaJugador : consumir
+    Bandera --> Jugador : dueno
+    Bandera ..> Animal : detectar
+    Mapa o-- Zona
+    Mapa o-- Camino
+    Zona ..> Punto
+    Camino ..> Punto
+    ConstructorMapa ..> Zona
+    ConstructorMapa ..> Camino
+    ConstructorMapa ..> Mapa : construir
+    BuscadorBFS ..> Mapa
+    BuscadorDijkstra ..> Mapa
+    Ruta ..> Mapa
+    Ruta o-- Punto
+    Jugador --> ManadaJugador
+    Jugador --> Bandera
+    Jugador --> Especie
+    Jugador --> ManejadorCliente
+    MundoJuego --> Mapa
+    MundoJuego o-- ManadaJugador
+    MundoJuego o-- ManadaBot
+    MundoJuego o-- TazaCafe
+    MundoJuego o-- Bandera
+    MundoJuego --> Jugador : ganador
+    InicializadorMundo ..> MundoJuego
+    InicializadorMundo ..> Mapa
+    CicloJuego --> MundoJuego
+    CicloJuego o-- IReglaJuego : reglas
+    ServicioVisibilidad ..> MundoJuego
+    ServicioVisibilidad ..> Jugador
+    ServicioVisibilidad ..> EstadoVisible
+    Partida --> EstadoPartida
+    Partida o-- Jugador
+    Partida --> SelectorEspecies
+    Partida --> MundoJuego
+    Partida --> CicloJuego
+    Partida ..> ResumenPartida
+    SelectorEspecies ..> Jugador
+    SelectorEspecies ..> Especie
+    AdministradorPartidas o-- Partida
+    AdministradorPartidas --> GeneradorCodigo
+    Mensaje --> TipoMensaje
+    Mensaje ..> CodificadorJson
+    FabricaMensajes ..> Mensaje
+    FabricaMensajes ..> TipoMensaje
+    CodificadorJson ..> Mensaje
+    Mensaje ..> DatosCrearPartida
+    Mensaje ..> DatosUnirse
+    Mensaje ..> DatosElegirAnimal
+    Mensaje ..> DatosMover
+    Mensaje ..> DatosAtacar
+    Mensaje ..> DatosVerZona
+    Mensaje ..> DatosPartidaCreada
+    Mensaje ..> DatosSeleccion
+    Mensaje ..> DatosInicio
+    Mensaje ..> EstadoVisible
+    Mensaje ..> ResumenPartida
+    DatosInicio --> VistaMapa
+    DatosInicio ..> VistaAnimal
+    EstadoVisible ..> VistaAnimal
+    EstadoVisible ..> Punto
+    VistaMapa ..> Zona
+    VistaMapa ..> Camino
+    EnrutadorMensajes o-- IComando : comandos
+    ComandoCrearPartida ..> AdministradorPartidas
+    ComandoUnirse ..> AdministradorPartidas
+    ComandoElegirAnimal ..> Partida
+    ComandoMover ..> Animal
+    ComandoAtacar ..> Animal
+    ComandoVerZona ..> ServicioVisibilidad
+    ComandoCrearPartida ..> DatosCrearPartida
+    ComandoUnirse ..> DatosUnirse
+    ComandoElegirAnimal ..> DatosElegirAnimal
+    ComandoMover ..> DatosMover
+    ComandoAtacar ..> DatosAtacar
+    ComandoVerZona ..> DatosVerZona
+    ManejadorCliente --> EnrutadorMensajes
+    ManejadorCliente --> Jugador
+    ManejadorCliente ..> Mensaje
+    ServidorJuego o-- ManejadorCliente : crea
+    ServidorJuego --> AdministradorPartidas
+    ServidorJuego --> EnrutadorMensajes
+    ServerMain ..> ServidorJuego
+    EntidadJuego ..> IObserver : notifica cambios
+    MundoJuego ..> IObserver : notifica cambios
+    MundoJuego ..> Partida : eventos de partida
 ```
-
-![Diagrama UML](Diagrama.png)
