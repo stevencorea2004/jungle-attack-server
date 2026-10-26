@@ -4,7 +4,7 @@ Repo jungle-attack-server. El servidor es la autoridad: calcula movimiento, comb
 
 ## Estructura Java
 
-El proyecto está organizado en los paquetes `util`, `model`, `mapa`, `game`, `partida` y `red`. Las configuraciones que el spec no define quedan como marcadores por completar. Usa Maven y Gson; se compila con `mvn compile` y se ejecutan las pruebas JUnit 5 con `mvn test`. Las pruebas del model layer están en `src/test/java/model`.
+Requiere JDK 25 (LTS) y Maven 3.9 o posterior. El proyecto está organizado en los paquetes `util`, `model`, `mapa`, `game`, `partida` y `red`. Las configuraciones que el spec no define quedan como marcadores por completar. Usa Maven y Gson; se compila con `mvn compile` y se ejecutan las pruebas JUnit 5 con `mvn test`. Las pruebas del model layer están en `src/test/java/model`.
 
 ## Patrón Observer y Utilidades (util)
 

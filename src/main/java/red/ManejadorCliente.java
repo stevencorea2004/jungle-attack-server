@@ -1,32 +1,91 @@
 package red;
 
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import game.Jugador;
+import util.Constantes;
 
+/** Atiende a un cliente conectado en su propio hilo. Un mensaje = una línea de JSON. */
 public class ManejadorCliente implements Runnable {
     private Socket socket;
     private BufferedReader lector;
     private PrintWriter escritor;
     private EnrutadorMensajes enrutador;
     private Jugador jugador;
+    private final AtomicBoolean cerrado = new AtomicBoolean(false);
+    private Runnable alDesconectar = () -> { };
 
-    public ManejadorCliente(Socket socket2, EnrutadorMensajes enrutador2) {
-        //TODO Auto-generated constructor stub
+    public ManejadorCliente(Socket socket, EnrutadorMensajes enrutador) throws IOException {
+        this.socket = socket;
+        this.enrutador = enrutador;
+        this.lector = new BufferedReader(new InputStreamReader(socket.getInputStream(), Constantes.CHARSET));
+        this.escritor = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), Constantes.CHARSET), true);
     }
 
     @Override
     public void run() {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        try {
+            String linea;
+            while ((linea = lector.readLine()) != null) {
+                procesar(linea);
+            }
+        } catch (IOException e) {
+            // El cliente cortó la conexión; se cierra en el finally.
+        } finally {
+            cerrar();
+        }
     }
 
-    public void enviar(Mensaje mensaje) {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+    private void procesar(String linea) {
+        try {
+            Mensaje mensaje = CodificadorJson.getInstancia().decodificar(linea);
+            if (mensaje == null) {
+                return; // línea vacía
+            }
+            enrutador.enrutar(this, mensaje);
+        } catch (RuntimeException e) {
+            // JSON malo, tipo desconocido o un comando que falló: se avisa y la conexión sigue.
+            enviar(FabricaMensajes.error("No se pudo procesar el mensaje: " + e.getMessage()));
+        }
+    }
+
+    /** synchronized: el hilo de este cliente y el ciclo del juego pueden enviar a la vez. */
+    public synchronized void enviar(Mensaje mensaje) {
+        escritor.println(CodificadorJson.getInstancia().codificar(mensaje));
     }
 
     public void cerrar() {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        if (!cerrado.compareAndSet(false, true)) {
+            return;
+        }
+        try {
+            socket.close();
+        } catch (IOException e) {
+            // Ya estaba cerrado.
+        }
+        alDesconectar.run();
+    }
+
+    /** Qué hacer cuando el cliente se va; más adelante, avisar a la Partida. */
+    public void setAlDesconectar(Runnable alDesconectar) {
+        this.alDesconectar = alDesconectar;
+    }
+
+    public Jugador getJugador() {
+        return jugador;
+    }
+
+    public void setJugador(Jugador jugador) {
+        this.jugador = jugador;
+    }
+
+    public boolean estaCerrado() {
+        return cerrado.get();
     }
 }

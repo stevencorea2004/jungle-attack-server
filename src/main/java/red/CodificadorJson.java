@@ -1,6 +1,7 @@
 package red;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 public final class CodificadorJson {
     private static final CodificadorJson INSTANCIA = new CodificadorJson();
@@ -14,10 +15,21 @@ public final class CodificadorJson {
     }
 
     public String codificar(Mensaje mensaje) {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        JsonObject json = new JsonObject();
+        json.addProperty("tipo", mensaje.getTipo().name());
+        if (mensaje.getPayloadJson() != null) {
+            json.add("payload", mensaje.getPayloadJson());
+        }
+        return gson.toJson(json);
     }
 
     public Mensaje decodificar(String linea) {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        if (linea == null || linea.isBlank()) {
+            return null;
+        }
+        JsonObject json = gson.fromJson(linea, JsonObject.class);
+        TipoMensaje tipo = TipoMensaje.valueOf(json.get("tipo").getAsString());
+        JsonObject payload = json.has("payload") ? json.getAsJsonObject("payload") : new JsonObject();
+        return new Mensaje(tipo, payload);
     }
 }
