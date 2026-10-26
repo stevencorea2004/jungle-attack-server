@@ -15,6 +15,19 @@ public abstract class EntidadJuego extends Observable {
         return posicion;
     }
 
+    public int getIdZona() {
+        return idZona;
+    }
+
+    public void setUbicacion(int id, Punto posicion, int idZona) {
+        if (posicion == null || !Double.isFinite(posicion.getX()) || !Double.isFinite(posicion.getY())) {
+            throw new IllegalArgumentException("La posición debe tener coordenadas finitas");
+        }
+        this.id = id;
+        this.posicion = new Punto(posicion.getX(), posicion.getY());
+        this.idZona = idZona;
+    }
+
     public boolean estaEnRadio(EntidadJuego otra, double radio) {
         if (otra == null || this.posicion == null || otra.posicion == null) {
             return false;

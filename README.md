@@ -259,7 +259,9 @@ Métodos:
 
 - agregarZona(Zona zona): ConstructorMapa
 - conectar(int zonaA, int zonaB, Vector puntos): ConstructorMapa
-- construir(): Mapa — Valida que sean 12 zonas y que todas estén conectadas.
+- construir(): Mapa — Valida que haya exactamente 12 zonas y que todas estén conectadas.
+
+El builder rechaza ids de zona duplicados, conexiones inválidas o repetidas y caminos sin coordenadas válidas. Cada conexión se registra como vecindad en ambas zonas.
 
 ### IBuscadorRuta (Interfaz) — Patrón Strategy
 
@@ -357,9 +359,10 @@ Atributos:
 
 Métodos:
 
-- elegirZonasIniciales(Mapa mapa, int cantidad): Vector — 7 zonas distintas de las 12.
+- InicializadorMundo(Random random): Constructor — Permite resultados reproducibles con una semilla fija.
+- elegirZonasIniciales(Mapa mapa, int cantidad): Vector — Selecciona zonas distintas sin reemplazo.
 - colocarTazas(MundoJuego mundo): void — 10 tazas en puntos aleatorios de los caminos.
-- colocarBanderas(MundoJuego mundo): void
+- colocarBanderas(MundoJuego mundo): void — Coloca una bandera en la zona inicial de cada jugador.
 
 ### IReglaJuego (Interfaz) — Patrón Strategy
 
