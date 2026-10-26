@@ -1,9 +1,28 @@
 package red;
 
+import java.io.IOException;
+
+import partida.AdministradorPartidas;
+import util.Constantes;
+
 public final class ServerMain {
     private ServerMain() {
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+        AdministradorPartidas administrador = new AdministradorPartidas();
+
+        EnrutadorMensajes enrutador = new EnrutadorMensajes();
+        enrutador.registrar(TipoMensaje.CREATE_MATCH, new ComandoCrearPartida());
+        enrutador.registrar(TipoMensaje.JOIN_MATCH, new ComandoUnirse());
+        enrutador.registrar(TipoMensaje.SELECT_ANIMAL, new ComandoElegirAnimal());
+        enrutador.registrar(TipoMensaje.MOVE_ANIMALS, new ComandoMover());
+        enrutador.registrar(TipoMensaje.ATTACK, new ComandoAtacar());
+        enrutador.registrar(TipoMensaje.VIEW_ZONE, new ComandoVerZona());
+
+        ServidorJuego servidor = new ServidorJuego(Constantes.PUERTO, administrador, enrutador);
+        servidor.iniciar();
+        Runtime.getRuntime().addShutdownHook(new Thread(servidor::detener));
+        System.out.println("Servidor escuchando en el puerto " + servidor.getPuerto());
     }
 }

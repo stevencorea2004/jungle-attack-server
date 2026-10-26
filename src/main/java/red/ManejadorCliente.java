@@ -1,9 +1,10 @@
 package red;
 
-import game.Jugador;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+
+import game.Jugador;
 
 public class ManejadorCliente implements Runnable {
     private Socket socket;
@@ -11,6 +12,10 @@ public class ManejadorCliente implements Runnable {
     private PrintWriter escritor;
     private EnrutadorMensajes enrutador;
     private Jugador jugador;
+
+    public ManejadorCliente(Socket socket2, EnrutadorMensajes enrutador2) {
+        //TODO Auto-generated constructor stub
+    }
 
     @Override
     public void run() {
