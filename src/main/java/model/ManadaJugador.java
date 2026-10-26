@@ -4,7 +4,7 @@ import game.Jugador;
 import util.Constantes;
 
 public class ManadaJugador extends Manada {
-    private Jugador dueno;
+    private final Jugador dueno;
 
     public ManadaJugador(Especie especie, Jugador dueno) {
         super(especie, Constantes.DANIO_JUGADOR);

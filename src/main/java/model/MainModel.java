@@ -1,6 +1,5 @@
 package model;
 
-import java.util.Random;
 import util.Constantes;
 
 public final class MainModel {

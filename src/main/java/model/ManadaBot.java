@@ -3,7 +3,7 @@ package model;
 import util.Constantes;
 
 public class ManadaBot extends Manada {
-    private int idZonaInicial;
+    private final int idZonaInicial;
 
     public ManadaBot(Especie especie, int idZonaInicial) {
         super(especie, Constantes.DANIO_BOT);
