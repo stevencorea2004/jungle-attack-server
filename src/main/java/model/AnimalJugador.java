@@ -1,23 +1,25 @@
 package model;
 
+import util.Constantes;
+
 public class AnimalJugador extends Animal {
     private Animal objetivo;
 
     public void setObjetivo(Animal objetivo) {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        this.objetivo = objetivo;
     }
 
     public void limpiarObjetivo() {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        this.objetivo = null;
     }
 
     @Override
     public int getEnergiaMax() {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        return Constantes.ENERGIA_MAX_JUGADOR;
     }
 
     @Override
     public boolean esBot() {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        return false;
     }
 }

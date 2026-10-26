@@ -1,13 +1,15 @@
 package model;
 
+import util.Constantes;
+
 public class AnimalBot extends Animal {
     @Override
     public int getEnergiaMax() {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        return Constantes.ENERGIA_BOT;
     }
 
     @Override
     public boolean esBot() {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        return true;
     }
 }

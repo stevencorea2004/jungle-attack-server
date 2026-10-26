@@ -4,22 +4,39 @@ import java.util.Vector;
 import model.Punto;
 
 public class Ruta {
-    private Vector<Punto> puntos;
+    private final Vector<Punto> puntos;
     private int indice;
 
+    public Ruta(Vector<Punto> puntos) {
+        this.puntos = puntos == null ? new Vector<>() : puntos;
+        this.indice = 0;
+    }
+
     public static Ruta crear(Mapa mapa, Vector<Zona> zonas, Punto inicio, Punto destino) {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        Vector<Punto> lista = new Vector<>();
+        if (inicio != null) {
+            lista.add(new Punto(inicio.getX(), inicio.getY()));
+        }
+        if (destino != null) {
+            lista.add(new Punto(destino.getX(), destino.getY()));
+        }
+        return new Ruta(lista);
     }
 
     public Punto puntoActual() {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        if (puntos == null || puntos.isEmpty()) {
+            return null;
+        }
+        return puntos.get(Math.min(indice, puntos.size() - 1));
     }
 
     public void avanzar() {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        if (puntos.size() > 1 && indice < puntos.size() - 1) {
+            indice++;
+        }
     }
 
     public boolean terminada() {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        return puntos == null || puntos.size() <= 1 || indice >= puntos.size() - 1;
     }
 }

@@ -6,14 +6,24 @@ public abstract class Observable {
     protected final Vector<IObserver> observers = new Vector<>();
 
     public void addObserver(IObserver ob) {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        if (ob == null || observers.contains(ob)) {
+            return;
+        }
+        observers.add(ob);
     }
 
     public void removeObserver(IObserver ob) {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        if (ob == null) {
+            return;
+        }
+        observers.remove(ob);
     }
 
     public void notifyObservers(Object source) {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        for (IObserver ob : new Vector<>(observers)) {
+            if (ob != null) {
+                ob.update(source, this);
+            }
+        }
     }
 }

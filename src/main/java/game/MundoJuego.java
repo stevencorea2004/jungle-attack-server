@@ -20,28 +20,62 @@ public class MundoJuego extends Observable implements IObserver {
     private AtomicBoolean terminado;
     private Jugador ganador;
 
+    public MundoJuego() {
+        this.manadasJugador = new Vector<>();
+        this.manadasBot = new Vector<>();
+        this.tazas = new Vector<>();
+        this.banderas = new Vector<>();
+        this.terminado = new AtomicBoolean(false);
+    }
+
+    public Vector<ManadaJugador> getManadasJugador() {
+        return manadasJugador;
+    }
+
+    public Vector<ManadaBot> getManadasBot() {
+        return manadasBot;
+    }
+
     public Vector<Animal> getAnimalesVivos() {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        Vector<Animal> vivos = new Vector<>();
+        for (ManadaJugador manada : manadasJugador) {
+            if (manada != null) {
+                vivos.addAll(manada.getVivos());
+            }
+        }
+        for (ManadaBot manada : manadasBot) {
+            if (manada != null) {
+                vivos.addAll(manada.getVivos());
+            }
+        }
+        return vivos;
     }
 
     public Animal buscarAnimal(int id) {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        for (Animal animal : getAnimalesVivos()) {
+            if (animal != null && animal.getId() == id) {
+                return animal;
+            }
+        }
+        return null;
     }
 
     public boolean hayGanador() {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        return terminado.get() && ganador != null;
     }
 
     public Jugador getGanador() {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        return ganador;
     }
 
     public void terminar(Jugador ganador) {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        this.ganador = ganador;
+        this.terminado.set(true);
+        notifyObservers(this);
     }
 
     @Override
     public void update(Object source, Observable ob) {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        notifyObservers(source);
     }
 }
