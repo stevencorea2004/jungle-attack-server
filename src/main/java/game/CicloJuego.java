@@ -11,16 +11,43 @@ public class CicloJuego implements Runnable {
     private long ultimoTick;
     private AtomicBoolean activo;
 
+    public CicloJuego(MundoJuego mundo) {
+        this.mundo = mundo;
+        this.reglas = new Vector<>();
+        this.reglas.add(new ReglaMovimiento());
+        this.reglas.add(new ReglaAtaqueBot());
+        this.reloj = Clock.systemDefaultZone();
+        this.ultimoTick = reloj.millis();
+        this.activo = new AtomicBoolean(false);
+    }
+
     @Override
     public void run() {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        activo.set(true);
+        while (activo.get()) {
+            long ahora = reloj.millis();
+            tick(ahora);
+            try {
+                Thread.sleep(50L);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
     }
 
     public void tick(long ahora) {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        if (mundo == null || mundo.hayGanador()) {
+            return;
+        }
+        double deltaSeg = (ahora - ultimoTick) / 1000.0;
+        ultimoTick = ahora;
+        for (IReglaJuego regla : reglas) {
+            regla.aplicar(mundo, ahora, deltaSeg);
+        }
     }
 
     public void detener() {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        activo.set(false);
     }
 }

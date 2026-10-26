@@ -4,7 +4,7 @@ Repo jungle-attack-server. El servidor es la autoridad: calcula movimiento, comb
 
 ## Estructura Java
 
-El esqueleto de clases está en `src/main/java`, organizado en los paquetes `util`, `model`, `mapa`, `game`, `partida` y `red`. Las firmas están declaradas; los métodos pendientes lanzan `UnsupportedOperationException` hasta que se implemente su lógica. Las configuraciones que el spec no define quedan como marcadores por completar. El proyecto usa Maven y Gson; compila con `mvn compile`.
+El proyecto está organizado en los paquetes `util`, `model`, `mapa`, `game`, `partida` y `red`. Las configuraciones que el spec no define quedan como marcadores por completar. Usa Maven y Gson; se compila con `mvn compile` y se ejecutan las pruebas JUnit 5 con `mvn test`. Las pruebas del model layer están en `src/test/java/model`.
 
 ## Patrón Observer y Utilidades (util)
 

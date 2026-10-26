@@ -8,14 +8,17 @@ public abstract class EntidadJuego extends Observable {
     protected int idZona;
 
     public int getId() {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        return id;
     }
 
     public Punto getPos() {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        return posicion;
     }
 
     public boolean estaEnRadio(EntidadJuego otra, double radio) {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        if (otra == null || this.posicion == null || otra.posicion == null) {
+            return false;
+        }
+        return this.posicion.distancia(otra.posicion) <= radio;
     }
 }

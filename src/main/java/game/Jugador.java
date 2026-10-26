@@ -17,18 +17,63 @@ public class Jugador {
     private int animalesPerdidos;
 
     public boolean registrarBotEliminado() {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        botsEliminados++;
+        return true;
     }
 
     public void registrarTaza() {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        tazasConsumidas++;
     }
 
     public boolean puedeVer(int idZona) {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        return this.zonaVista == idZona || this.zonaVista == 0;
     }
 
     public String getNickname() {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void setZonaVista(int zonaVista) {
+        this.zonaVista = zonaVista;
+    }
+
+    public ManadaJugador getManada() {
+        return manada;
+    }
+
+    public void setManada(ManadaJugador manada) {
+        this.manada = manada;
+    }
+
+    public Especie getEspecie() {
+        return especie;
+    }
+
+    public void setEspecie(Especie especie) {
+        this.especie = especie;
+    }
+
+    public Bandera getBandera() {
+        return bandera;
+    }
+
+    public void setBandera(Bandera bandera) {
+        this.bandera = bandera;
+    }
+
+    public int getTazasConsumidas() {
+        return tazasConsumidas;
+    }
+
+    public int getBotsEliminados() {
+        return botsEliminados;
+    }
+
+    public int getAnimalesPerdidos() {
+        return animalesPerdidos;
     }
 }
