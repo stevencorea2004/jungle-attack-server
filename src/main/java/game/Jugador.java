@@ -3,6 +3,7 @@ package game;
 import model.Bandera;
 import model.Especie;
 import model.ManadaJugador;
+import partida.Partida;
 import red.ManejadorCliente;
 
 public class Jugador {
@@ -15,6 +16,7 @@ public class Jugador {
     private int tazasConsumidas;
     private int botsEliminados;
     private int animalesPerdidos;
+    private Partida partida;
 
     public boolean registrarBotEliminado() {
         botsEliminados++;
@@ -75,5 +77,21 @@ public class Jugador {
 
     public int getAnimalesPerdidos() {
         return animalesPerdidos;
+    }
+
+    public Partida getPartida() {
+        return partida;
+    }
+
+    public void setPartida(Partida partida) {
+        this.partida = partida;
+    }
+
+    public ManejadorCliente getConexion() {
+        return conexion;
+    }
+
+    public void setConexion(ManejadorCliente conexion) {
+        this.conexion = conexion;
     }
 }

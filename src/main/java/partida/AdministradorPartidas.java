@@ -1,29 +1,67 @@
 package partida;
 
 import game.Jugador;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class AdministradorPartidas {
-    private ConcurrentHashMap<String, Partida> partidas;
-    private GeneradorCodigo generador;
+    private final ConcurrentHashMap<String, Partida> partidas = new ConcurrentHashMap<>();
+    private final GeneradorCodigo generador;
 
-    public Partida crearPartida(Jugador anfitrion) {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+    public AdministradorPartidas() {
+        this(new GeneradorCodigo());
     }
 
-    public Partida unirse(String codigo, Jugador invitado) {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+    public AdministradorPartidas(GeneradorCodigo generador) {
+        if (generador == null) {
+            throw new IllegalArgumentException("El generador de códigos es obligatorio");
+        }
+        this.generador = generador;
+    }
+
+    public synchronized Partida crearPartida(Jugador anfitrion) {
+        validarJugadorNuevo(anfitrion);
+        Set<String> existentes = partidas.keySet();
+        String codigo = generador.generar(existentes);
+        Partida partida = new Partida(codigo);
+        partida.agregarJugador(anfitrion);
+        partidas.put(codigo, partida);
+        return partida;
+    }
+
+    public synchronized Partida unirse(String codigo, Jugador invitado) {
+        validarJugadorNuevo(invitado);
+        String normalizado = GeneradorCodigo.normalizar(codigo);
+        Partida partida = normalizado == null ? null : partidas.get(normalizado);
+        if (partida == null) {
+            throw new IllegalArgumentException("No existe una partida con ese código");
+        }
+        partida.agregarJugador(invitado);
+        return partida;
     }
 
     public Partida buscar(String codigo) {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        String normalizado = GeneradorCodigo.normalizar(codigo);
+        return normalizado == null ? null : partidas.get(normalizado);
     }
 
     public void eliminar(String codigo) {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        String normalizado = GeneradorCodigo.normalizar(codigo);
+        if (normalizado != null) {
+            partidas.remove(normalizado);
+        }
     }
 
     public int getCantidadActivas() {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        return partidas.size();
+    }
+
+    private static void validarJugadorNuevo(Jugador jugador) {
+        if (jugador == null) {
+            throw new IllegalArgumentException("El jugador es obligatorio");
+        }
+        if (jugador.getPartida() != null) {
+            throw new IllegalArgumentException("El jugador ya pertenece a una partida");
+        }
     }
 }

@@ -20,9 +20,11 @@ class MainRedTest {
     private Socket socket;
     private PrintWriter escritor;
     private BufferedReader lector;
+    private AdministradorPartidas administrador;
 
     @BeforeEach
     void iniciarServidor() throws Exception {
+        administrador = new AdministradorPartidas();
         EnrutadorMensajes enrutador = new EnrutadorMensajes();
         // Comando de prueba: responde MATCH_CREATED con un código fijo.
         enrutador.registrar(TipoMensaje.CREATE_MATCH, (cliente, mensaje) -> {
@@ -30,10 +32,9 @@ class MainRedTest {
             datos.codigo = "A7K2";
             cliente.enviar(FabricaMensajes.crear(TipoMensaje.MATCH_CREATED, datos));
         });
-        // Comando real que todavía no está implementado (lanza excepción).
-        enrutador.registrar(TipoMensaje.JOIN_MATCH, new ComandoUnirse());
+        enrutador.registrar(TipoMensaje.JOIN_MATCH, new ComandoUnirse(administrador));
 
-        servidor = new ServidorJuego(0, new AdministradorPartidas(), enrutador);
+        servidor = new ServidorJuego(0, administrador, enrutador);
         servidor.iniciar();
 
         socket = new Socket("localhost", servidor.getPuerto());

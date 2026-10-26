@@ -13,8 +13,8 @@ public final class ServerMain {
         AdministradorPartidas administrador = new AdministradorPartidas();
 
         EnrutadorMensajes enrutador = new EnrutadorMensajes();
-        enrutador.registrar(TipoMensaje.CREATE_MATCH, new ComandoCrearPartida());
-        enrutador.registrar(TipoMensaje.JOIN_MATCH, new ComandoUnirse());
+        enrutador.registrar(TipoMensaje.CREATE_MATCH, new ComandoCrearPartida(administrador));
+        enrutador.registrar(TipoMensaje.JOIN_MATCH, new ComandoUnirse(administrador));
         enrutador.registrar(TipoMensaje.SELECT_ANIMAL, new ComandoElegirAnimal());
         enrutador.registrar(TipoMensaje.MOVE_ANIMALS, new ComandoMover());
         enrutador.registrar(TipoMensaje.ATTACK, new ComandoAtacar());

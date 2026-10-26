@@ -558,6 +558,12 @@ Métodos:
 - ComandoAtacar: Asigna el objetivo a los animales seleccionados.
 - ComandoVerZona: Cambia la zona que el jugador está viendo si tiene animales ahí.
 
+### Estado implementado del lobby
+
+El servidor ya implementa crear partidas con códigos alfanuméricos únicos, unirse con comparación del código sin distinguir mayúsculas, el límite de dos jugadores y la selección exclusiva de especies. Al entrar el segundo jugador, ambos reciben MATCH\_JOINED y ANIMAL\_SELECTION; cada selección actualiza las especies disponibles y la elección del rival. Las cinco especies restantes quedan reservadas para bots.
+
+La selección todavía no inicia la partida: la creación del mapa, las manadas y el ciclo de juego pertenecen al motor pendiente. Los comandos MOVE\_ANIMALS, ATTACK y VIEW\_ZONE tampoco están implementados.
+
 ### EnrutadorMensajes — Command: invocador
 
 Atributos:

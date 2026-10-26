@@ -1,24 +1,44 @@
 package partida;
 
 import game.Jugador;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 import model.Especie;
 
 public class SelectorEspecies {
-    private Set<Especie> disponibles;
-    private Map<Jugador, Especie> elecciones;
+    private final Set<Especie> disponibles = EnumSet.allOf(Especie.class);
+    private final Map<Jugador, Especie> elecciones = new java.util.HashMap<>();
 
-    public boolean elegir(Jugador jugador, Especie especie) {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+    public synchronized boolean elegir(Jugador jugador, Especie especie) {
+        if (jugador == null || especie == null) {
+            return false;
+        }
+        Especie eleccionAnterior = elecciones.get(jugador);
+        if (eleccionAnterior != null) {
+            return eleccionAnterior == especie;
+        }
+        if (!disponibles.remove(especie)) {
+            return false;
+        }
+        elecciones.put(jugador, especie);
+        return true;
     }
 
-    public boolean todosEligieron() {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+    public synchronized boolean todosEligieron() {
+        return elecciones.size() >= 2;
     }
 
-    public Vector<Especie> especiesBot() {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+    public synchronized Vector<Especie> especiesBot() {
+        return new Vector<>(disponibles);
+    }
+
+    public synchronized Vector<Especie> getDisponibles() {
+        return new Vector<>(disponibles);
+    }
+
+    public synchronized Especie getEleccion(Jugador jugador) {
+        return elecciones.get(jugador);
     }
 }
