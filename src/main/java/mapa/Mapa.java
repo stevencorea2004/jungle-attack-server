@@ -33,6 +33,14 @@ public class Mapa {
         return null;
     }
 
+    public Vector<Zona> getZonas() {
+        return new Vector<>(zonas);
+    }
+
+    public Vector<Camino> getCaminos() {
+        return new Vector<>(caminos);
+    }
+
     public Zona zonaEn(Punto p) {
         for (Zona zona : zonas) {
             if (zona != null && zona.contiene(p)) {

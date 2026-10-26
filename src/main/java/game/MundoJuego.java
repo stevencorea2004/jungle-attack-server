@@ -36,6 +36,25 @@ public class MundoJuego extends Observable implements IObserver {
         return manadasBot;
     }
 
+    public Mapa getMapa() {
+        return mapa;
+    }
+
+    public void setMapa(Mapa mapa) {
+        if (mapa == null) {
+            throw new IllegalArgumentException("El mapa es obligatorio");
+        }
+        this.mapa = mapa;
+    }
+
+    public Vector<TazaCafe> getTazas() {
+        return tazas;
+    }
+
+    public Vector<Bandera> getBanderas() {
+        return banderas;
+    }
+
     public Vector<Animal> getAnimalesVivos() {
         Vector<Animal> vivos = new Vector<>();
         for (ManadaJugador manada : manadasJugador) {

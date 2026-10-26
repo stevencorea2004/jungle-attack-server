@@ -1,10 +1,12 @@
 package game;
 
 import model.Bandera;
+import model.Animal;
 import model.Especie;
 import model.ManadaJugador;
 import partida.Partida;
 import red.ManejadorCliente;
+import util.Constantes;
 
 public class Jugador {
     private String nickname;
@@ -20,7 +22,7 @@ public class Jugador {
 
     public boolean registrarBotEliminado() {
         botsEliminados++;
-        return true;
+        return botsEliminados % Constantes.BOTS_POR_BONO == 0;
     }
 
     public void registrarTaza() {
@@ -28,7 +30,15 @@ public class Jugador {
     }
 
     public boolean puedeVer(int idZona) {
-        return this.zonaVista == idZona || this.zonaVista == 0;
+        if (manada == null) {
+            return false;
+        }
+        for (Animal animal : manada.getVivos()) {
+            if (animal.getIdZona() == idZona) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public String getNickname() {
