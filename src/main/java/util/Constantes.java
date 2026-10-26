@@ -22,7 +22,7 @@ public final class Constantes {
     public static final long TICK_MS = 0L;
     public static final int LARGO_CODIGO = 4;
     public static final String CARACTERES_CODIGO = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    public static final int PUERTO = 0;
+    public static final int PUERTO = 5000;
     public static final String CHARSET = "UTF-8";
 
     private Constantes() {
