@@ -37,8 +37,17 @@ public class ComandoMover implements IComando {
             }
             animales.add(animalPropio(jugador, id));
         }
+        ArrayList<Ruta> rutas = new ArrayList<>();
         for (Animal animal : animales) {
-            animal.setRuta(Ruta.crear(partida.getMundo().getMapa(), null, animal.getPosicion(), destino));
+            Ruta ruta = Ruta.crear(partida.getMundo().getMapa(), null, animal.getPosicion(), destino);
+            if (!ruta.esValida()) {
+                throw new IllegalArgumentException("No existe un camino transitable hasta el destino");
+            }
+            rutas.add(ruta);
+        }
+        for (int i = 0; i < animales.size(); i++) {
+            Animal animal = animales.get(i);
+            animal.setRuta(rutas.get(i));
             if (animal instanceof AnimalJugador) {
                 ((AnimalJugador) animal).limpiarObjetivo();
             }

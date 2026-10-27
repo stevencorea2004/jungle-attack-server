@@ -1,19 +1,21 @@
 package mapa;
 
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.Vector;
 import model.Punto;
 import util.Constantes;
 
 public class ConstructorMapa {
-    private final Vector<Zona> zonas;
-    private final Vector<Camino> caminos;
+    private final List<Zona> zonas;
+    private final List<Camino> caminos;
 
     public ConstructorMapa() {
-        this.zonas = new Vector<>();
-        this.caminos = new Vector<>();
+        this.zonas = new ArrayList<>();
+        this.caminos = new ArrayList<>();
     }
 
     public ConstructorMapa agregarZona(Zona zona) {
@@ -35,7 +37,7 @@ public class ConstructorMapa {
         return this;
     }
 
-    public ConstructorMapa conectar(int zonaA, int zonaB, Vector<?> puntos) {
+    public ConstructorMapa conectar(int zonaA, int zonaB, List<?> puntos) {
         Zona origen = buscarZona(zonaA);
         Zona destino = buscarZona(zonaB);
         if (origen == null || destino == null) {
@@ -51,7 +53,7 @@ public class ConstructorMapa {
             throw new IllegalArgumentException("Las zonas ya están conectadas");
         }
 
-        Vector<Punto> puntosCamino = new Vector<>();
+        List<Punto> puntosCamino = new ArrayList<>();
         for (Object punto : puntos) {
             if (!(punto instanceof Punto)) {
                 throw new IllegalArgumentException("Todos los puntos del camino deben ser coordenadas");
@@ -89,16 +91,16 @@ public class ConstructorMapa {
 
     private boolean estaConectado() {
         Set<Integer> visitadas = new HashSet<>();
-        Vector<Zona> pendientes = new Vector<>();
-        pendientes.add(zonas.firstElement());
-        visitadas.add(zonas.firstElement().getId());
+        ArrayDeque<Zona> pendientes = new ArrayDeque<>();
+        pendientes.addLast(zonas.get(0));
+        visitadas.add(zonas.get(0).getId());
 
         while (!pendientes.isEmpty()) {
-            Zona actual = pendientes.remove(0);
+            Zona actual = pendientes.removeFirst();
             for (int idVecino : actual.getVecinos()) {
                 Zona vecino = buscarZona(idVecino);
                 if (vecino != null && visitadas.add(idVecino)) {
-                    pendientes.add(vecino);
+                    pendientes.addLast(vecino);
                 }
             }
         }

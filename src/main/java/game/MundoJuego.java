@@ -1,6 +1,7 @@
 package game;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import mapa.Mapa;
 import model.Animal;
@@ -13,26 +14,26 @@ import util.Observable;
 
 public class MundoJuego extends Observable implements IObserver {
     private Mapa mapa;
-    private Vector<ManadaJugador> manadasJugador;
-    private Vector<ManadaBot> manadasBot;
-    private Vector<TazaCafe> tazas;
-    private Vector<Bandera> banderas;
-    private AtomicBoolean terminado;
+    private final List<ManadaJugador> manadasJugador;
+    private final List<ManadaBot> manadasBot;
+    private final List<TazaCafe> tazas;
+    private final List<Bandera> banderas;
+    private final AtomicBoolean terminado;
     private Jugador ganador;
 
     public MundoJuego() {
-        this.manadasJugador = new Vector<>();
-        this.manadasBot = new Vector<>();
-        this.tazas = new Vector<>();
-        this.banderas = new Vector<>();
+        this.manadasJugador = new ArrayList<>();
+        this.manadasBot = new ArrayList<>();
+        this.tazas = new ArrayList<>();
+        this.banderas = new ArrayList<>();
         this.terminado = new AtomicBoolean(false);
     }
 
-    public Vector<ManadaJugador> getManadasJugador() {
+    public List<ManadaJugador> getManadasJugador() {
         return manadasJugador;
     }
 
-    public Vector<ManadaBot> getManadasBot() {
+    public List<ManadaBot> getManadasBot() {
         return manadasBot;
     }
 
@@ -47,16 +48,16 @@ public class MundoJuego extends Observable implements IObserver {
         this.mapa = mapa;
     }
 
-    public Vector<TazaCafe> getTazas() {
+    public List<TazaCafe> getTazas() {
         return tazas;
     }
 
-    public Vector<Bandera> getBanderas() {
+    public List<Bandera> getBanderas() {
         return banderas;
     }
 
-    public Vector<Animal> getAnimalesVivos() {
-        Vector<Animal> vivos = new Vector<>();
+    public List<Animal> getAnimalesVivos() {
+        List<Animal> vivos = new ArrayList<>();
         for (ManadaJugador manada : manadasJugador) {
             if (manada != null) {
                 vivos.addAll(manada.getVivos());

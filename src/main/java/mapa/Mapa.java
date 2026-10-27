@@ -1,5 +1,8 @@
 package mapa;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.Vector;
 import model.Punto;
 
@@ -78,5 +81,69 @@ public class Mapa {
             }
         }
         return null;
+    }
+
+    public Punto puntoAleatorioEnZona(int idZona, Random random) {
+        Zona zona = getZona(idZona);
+        if (zona == null) {
+            throw new IllegalArgumentException("La zona no pertenece al mapa");
+        }
+
+        List<SegmentoZona> segmentos = new ArrayList<>();
+        double largoTotal = 0.0;
+        for (Camino camino : caminos) {
+            Vector<Punto> puntos = camino.getPuntos();
+            for (int i = 1; i < puntos.size(); i++) {
+                Punto inicio = puntos.get(i - 1);
+                Punto fin = puntos.get(i);
+                double[] intervalo = Camino.intervaloEnZona(zona, inicio, fin);
+                if (intervalo == null || intervalo[1] <= intervalo[0]) {
+                    continue;
+                }
+                double largo = inicio.distancia(fin) * (intervalo[1] - intervalo[0]);
+                if (largo > 0.0) {
+                    segmentos.add(new SegmentoZona(inicio, fin, intervalo[0], intervalo[1], largo));
+                    largoTotal += largo;
+                }
+            }
+        }
+        if (segmentos.isEmpty()) {
+            throw new IllegalStateException("La zona no contiene caminos transitables");
+        }
+
+        double seleccionado = (random == null ? Math.random() : random.nextDouble()) * largoTotal;
+        for (SegmentoZona segmento : segmentos) {
+            seleccionado -= segmento.largo;
+            if (seleccionado <= 0.0) {
+                double proporcion = segmento.inicioT
+                        + (segmento.finT - segmento.inicioT)
+                                * (random == null ? Math.random() : random.nextDouble());
+                return interpolar(segmento.inicio, segmento.fin, proporcion);
+            }
+        }
+        SegmentoZona ultimo = segmentos.get(segmentos.size() - 1);
+        return interpolar(ultimo.inicio, ultimo.fin, ultimo.finT);
+    }
+
+    private static Punto interpolar(Punto inicio, Punto fin, double proporcion) {
+        return new Punto(
+                inicio.getX() + (fin.getX() - inicio.getX()) * proporcion,
+                inicio.getY() + (fin.getY() - inicio.getY()) * proporcion);
+    }
+
+    private static final class SegmentoZona {
+        private final Punto inicio;
+        private final Punto fin;
+        private final double inicioT;
+        private final double finT;
+        private final double largo;
+
+        private SegmentoZona(Punto inicio, Punto fin, double inicioT, double finT, double largo) {
+            this.inicio = inicio;
+            this.fin = fin;
+            this.inicioT = inicioT;
+            this.finT = finT;
+            this.largo = largo;
+        }
     }
 }

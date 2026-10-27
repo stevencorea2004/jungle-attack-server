@@ -1,11 +1,5 @@
 package red;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,14 +8,25 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
+import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
+import org.junit.jupiter.api.AfterEach;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import model.Animal;
 import model.AnimalJugador;
 import model.Especie;
 import model.Punto;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import partida.AdministradorPartidas;
 import partida.EstadoPartida;
 import partida.Partida;
@@ -114,7 +119,7 @@ class LobbyCommandsTest {
                 .getManada().getVivos().firstElement();
         Punto posicionInicial = new Punto(atacante.getPosicion().getX(), atacante.getPosicion().getY());
         DatosMover mover = new DatosMover();
-        mover.idsAnimales = new Vector<>(List.of(atacante.getId()));
+        mover.idsAnimales = List.of(atacante.getId());
         mover.destinoX = 1_100;
         mover.destinoY = 600;
         anfitrion.enviar(TipoMensaje.MOVE_ANIMALS, mover);
@@ -125,7 +130,7 @@ class LobbyCommandsTest {
         Animal objetivo = partida.getMundo().getManadasBot().get(0).getVivos().firstElement();
         objetivo.setUbicacion(objetivo.getId(), atacante.getPosicion(), atacante.getIdZona());
         DatosAtacar atacar = new DatosAtacar();
-        atacar.idsAnimales = new Vector<>(List.of(atacante.getId()));
+        atacar.idsAnimales = List.of(atacante.getId());
         atacar.idObjetivo = objetivo.getId();
         anfitrion.enviar(TipoMensaje.ATTACK, atacar);
         Thread.sleep(100L);
@@ -164,8 +169,91 @@ class LobbyCommandsTest {
         assertEquals(TipoMensaje.ERROR, error.getTipo());
     }
 
+    @Test
+    void partidaCompletaPorTcpTerminaAlTocarLaBanderaYRindeResumen() throws Exception {
+        ClientePrueba anfitrion = conectar(45_000);
+        anfitrion.enviar(TipoMensaje.CREATE_MATCH, crear("Ana"));
+        DatosPartidaCreada creada = (DatosPartidaCreada) anfitrion.leer()
+                .getPayload(DatosPartidaCreada.class);
+
+        ClientePrueba invitado = conectar(45_000);
+        DatosUnirse unirse = new DatosUnirse();
+        unirse.nickname = "Luis";
+        unirse.codigo = creada.codigo;
+        invitado.enviar(TipoMensaje.JOIN_MATCH, unirse);
+        assertEquals(TipoMensaje.MATCH_JOINED, anfitrion.leer().getTipo());
+        assertEquals(TipoMensaje.MATCH_JOINED, invitado.leer().getTipo());
+        seleccionar(anfitrion.leer());
+        seleccionar(invitado.leer());
+
+        anfitrion.enviar(TipoMensaje.SELECT_ANIMAL, elegir(Especie.JAGUAR));
+        seleccionar(anfitrion.leer());
+        seleccionar(invitado.leer());
+        invitado.enviar(TipoMensaje.SELECT_ANIMAL, elegir(Especie.DANTA));
+        seleccionar(anfitrion.leer());
+        seleccionar(invitado.leer());
+        assertEquals(TipoMensaje.GAME_STARTED, anfitrion.leer().getTipo());
+        assertEquals(TipoMensaje.GAME_STARTED, invitado.leer().getTipo());
+        assertEquals(TipoMensaje.STATE_UPDATE, anfitrion.leer().getTipo());
+        assertEquals(TipoMensaje.STATE_UPDATE, invitado.leer().getTipo());
+
+        Partida partida = servidor.getAdministrador().buscar(creada.codigo);
+        assertNotNull(partida);
+        assertEquals(EstadoPartida.EN_JUEGO, partida.getEstado());
+        var mundo = partida.getMundo();
+        var jugadorGanador = partida.getJugadores().get(0);
+        var jugadorDefensor = partida.getJugadores().get(1);
+        var banderaDefensora = jugadorDefensor.getBandera();
+        Punto destino = mundo.getMapa().puntoAleatorioEnZona(
+                banderaDefensora.getIdZona(), new Random(73));
+        banderaDefensora.setUbicacion(
+                banderaDefensora.getId(), destino, banderaDefensora.getIdZona());
+        for (var bots : mundo.getManadasBot()) {
+            for (Animal bot : bots.getMiembros()) {
+                bot.setUbicacion(bot.getId(), new Punto(2_000, 2_000), 0);
+            }
+        }
+
+        DatosMover mover = new DatosMover();
+        mover.idsAnimales = jugadorGanador.getManada().getVivos().stream()
+                .map(Animal::getId)
+                .toList();
+        mover.destinoX = destino.getX();
+        mover.destinoY = destino.getY();
+
+        ExecutorService lectores = Executors.newFixedThreadPool(2);
+        try {
+            Future<Mensaje> finAnfitrion = lectores.submit(
+                    () -> anfitrion.leerHasta(TipoMensaje.GAME_OVER));
+            Future<Mensaje> finInvitado = lectores.submit(
+                    () -> invitado.leerHasta(TipoMensaje.GAME_OVER));
+            anfitrion.enviar(TipoMensaje.MOVE_ANIMALS, mover);
+
+            ResumenPartida resumenAnfitrion = (ResumenPartida) finAnfitrion
+                    .get(50, TimeUnit.SECONDS).getPayload(ResumenPartida.class);
+            ResumenPartida resumenInvitado = (ResumenPartida) finInvitado
+                    .get(50, TimeUnit.SECONDS).getPayload(ResumenPartida.class);
+
+            assertEquals("Ana", resumenAnfitrion.ganador);
+            assertEquals(resumenAnfitrion.ganador, resumenInvitado.ganador);
+            assertEquals(0, resumenAnfitrion.animalesPerdidos.get("Ana"));
+            assertTrue(resumenAnfitrion.animalesPerdidos.containsKey("Luis"));
+            assertTrue(resumenAnfitrion.botsEliminados.containsKey("Ana"));
+            assertTrue(resumenAnfitrion.tazas.containsKey("Luis"));
+            assertEquals(EstadoPartida.TERMINADA, partida.getEstado());
+            assertEquals(0, servidor.getAdministrador().getCantidadActivas());
+        } finally {
+            lectores.shutdownNow();
+        }
+    }
+
     private ClientePrueba conectar() throws IOException {
-        ClientePrueba cliente = new ClientePrueba(new Socket("localhost", servidor.getPuerto()));
+        return conectar(2_000);
+    }
+
+    private ClientePrueba conectar(int timeoutMs) throws IOException {
+        ClientePrueba cliente = new ClientePrueba(
+                new Socket("localhost", servidor.getPuerto()), timeoutMs);
         clientes.add(cliente);
         return cliente;
     }
@@ -192,9 +280,9 @@ class LobbyCommandsTest {
         private final BufferedReader lector;
         private final PrintWriter escritor;
 
-        private ClientePrueba(Socket socket) throws IOException {
+        private ClientePrueba(Socket socket, int timeoutMs) throws IOException {
             this.socket = socket;
-            socket.setSoTimeout(2000);
+            socket.setSoTimeout(timeoutMs);
             lector = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
             escritor = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"), true);
         }
@@ -207,6 +295,14 @@ class LobbyCommandsTest {
             String linea = lector.readLine();
             assertNotNull(linea, "El servidor cerró la conexión sin respuesta");
             return CodificadorJson.getInstancia().decodificar(linea);
+        }
+
+        private Mensaje leerHasta(TipoMensaje tipoEsperado) throws IOException {
+            Mensaje mensaje;
+            do {
+                mensaje = leer();
+            } while (mensaje.getTipo() != tipoEsperado);
+            return mensaje;
         }
 
         @Override

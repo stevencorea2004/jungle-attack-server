@@ -4,7 +4,7 @@ Repo jungle-attack-server. El servidor es la autoridad: calcula movimiento por r
 
 ## Estructura Java
 
-Requiere JDK 25 (LTS) y Maven 3.9 o posterior. El proyecto está organizado en los paquetes `util`, `model`, `mapa`, `game`, `partida` y `red`. El servidor escucha en el puerto 5000; las velocidades y radios de juego se definen en `util.Constantes`. Usa Maven y Gson; se compila con `mvn compile` y se ejecutan las pruebas JUnit 5 con `mvn test`.
+Requiere JDK 25 (LTS) y Maven 3.9 o posterior. El proyecto está organizado en los paquetes `util`, `model`, `mapa`, `game`, `partida` y `red`. El servidor escucha en el puerto 5000; las velocidades y radios de juego se definen en `util.Constantes`. Usa Maven y Gson; se compila con `mvn compile` y se ejecutan las pruebas JUnit 5 con `mvn test`, incluidas pruebas de ida y vuelta JSON para payloads anidados y una integración TCP que completa una partida con dos clientes.
 
 ## Patrón Observer y Utilidades (util)
 
@@ -42,7 +42,7 @@ Variables principales:
 
 ### MainUtil
 
-Prueba unitaria independiente para verificar que Observable registra, quita y notifica observadores.
+`UtilTest` verifica que `MainUtil` sea invocable, valida constantes representativas y comprueba que `Observable` registra, notifica una sola vez y deja de notificar al quitar un observador.
 
 ## 1. Model Layer (model)
 
@@ -150,7 +150,8 @@ Métodos:
 - getVivos(): Vector
 - estaEliminada(): boolean
 - addDanio(int valor): void
-- crearMiembros(Zona zona, Random random): void — Crea y ubica los miembros dentro de su zona inicial.
+- crearMiembros(Zona zona, Random random): void — Crea miembros en posiciones aleatorias de la zona.
+- crearMiembros(Zona zona, Random random, Mapa mapa): void — Crea miembros sobre los caminos de la zona inicial.
 - crearMiembro(int id, Punto pos): Animal (abstracto)
 
 ### ManadaJugador (Hereda de Manada) — Factory Method: creador concreto
@@ -258,7 +259,7 @@ Atributos:
 Métodos:
 
 - agregarZona(Zona zona): ConstructorMapa
-- conectar(int zonaA, int zonaB, Vector puntos): ConstructorMapa
+- conectar(int zonaA, int zonaB, List<?> puntos): ConstructorMapa
 - construir(): Mapa — Valida que haya exactamente 12 zonas y que todas estén conectadas.
 
 El builder rechaza ids de zona duplicados, conexiones inválidas o repetidas y caminos sin coordenadas válidas. Cada conexión se registra como vecindad en ambas zonas.
@@ -294,8 +295,12 @@ Métodos:
 
 - crear(Mapa mapa, Vector zonas, Punto inicio, Punto destino): Ruta (estático)
 - puntoActual(): Punto
+- mover(Punto posicion, double distanciaMaxima): Punto — Avanza por los segmentos de camino sin perder velocidad en cada punto de control.
 - avanzar(): void
+- esValida(): boolean
 - terminada(): boolean
+
+Las manadas aparecen sobre los caminos. El destino indicado por el cliente se ajusta al tramo transitable más cercano de su zona y la ruta mínima se calcula sobre los segmentos del mapa, por lo que los animales no atraviesan el bosque fuera de los caminos.
 
 ### MainMapa
 
@@ -333,16 +338,16 @@ Administra el estado lógico del bosque durante la partida.
 Atributos:
 
 - mapa: Mapa
-- manadasJugador: Vector
-- manadasBot: Vector
-- tazas: Vector
-- banderas: Vector
+- manadasJugador: List<ManadaJugador>
+- manadasBot: List<ManadaBot>
+- tazas: List<TazaCafe>
+- banderas: List<Bandera>
 - terminado: AtomicBoolean
 - ganador: Jugador
 
 Métodos:
 
-- getAnimalesVivos(): Vector
+- getAnimalesVivos(): List<Animal>
 - buscarAnimal(int id): Animal
 - hayGanador(): boolean
 - getGanador(): Jugador
@@ -535,8 +540,8 @@ Métodos:
 - DatosCrearPartida: nickname: String
 - DatosUnirse: nickname: String, codigo: String
 - DatosElegirAnimal: especie: Especie
-- DatosMover: idsAnimales: Vector, destinoX: double, destinoY: double
-- DatosAtacar: idsAnimales: Vector, idObjetivo: int
+- DatosMover: idsAnimales: List<Integer>, destinoX: double, destinoY: double
+- DatosAtacar: idsAnimales: List<Integer>, idObjetivo: int
 - DatosVerZona: idZona: int
 - DatosPartidaCreada: codigo: String
 - DatosSeleccion: disponibles: Vector, eleccionRival: Especie
@@ -752,6 +757,7 @@ classDiagram
         +estaEliminada(): boolean
         +addDanio(valor: int): void
         +crearMiembros(zona: Zona, random: Random): void
+        +crearMiembros(zona: Zona, random: Random, mapa: Mapa): void
         +crearMiembro(id: int, pos: Punto): Animal
         }
         class ManadaJugador {
@@ -805,7 +811,7 @@ classDiagram
         -zonas: Vector
         -caminos: Vector
         +agregarZona(zona: Zona): ConstructorMapa
-        +conectar(zonaA: int, zonaB: int, puntos: Vector): ConstructorMapa
+        +conectar(zonaA: int, zonaB: int, puntos: List): ConstructorMapa
         +construir(): Mapa
         }
         class IBuscadorRuta {
@@ -821,8 +827,11 @@ classDiagram
         -puntos: Vector
         -indice: int
         +crear(mapa: Mapa, zonas: Vector, inicio: Punto, destino: Punto): Ruta$
+        +getPuntos(): List
         +puntoActual(): Punto
+        +mover(posicion: Punto, distanciaMaxima: double): Punto
         +avanzar(): void
+        +esValida(): boolean
         +terminada(): boolean
         }
         class MainMapa {
@@ -1001,12 +1010,12 @@ classDiagram
         +especie: Especie
         }
         class DatosMover {
-        +idsAnimales: Vector
+        +idsAnimales: List<Integer>
         +destinoX: double
         +destinoY: double
         }
         class DatosAtacar {
-        +idsAnimales: Vector
+        +idsAnimales: List<Integer>
         +idObjetivo: int
         }
         class DatosVerZona {

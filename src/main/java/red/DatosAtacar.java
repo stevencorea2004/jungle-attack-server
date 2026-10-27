@@ -1,8 +1,8 @@
 package red;
 
-import java.util.Vector;
+import java.util.List;
 
 public class DatosAtacar {
-    public Vector<Integer> idsAnimales;
+    public List<Integer> idsAnimales;
     public int idObjetivo;
 }

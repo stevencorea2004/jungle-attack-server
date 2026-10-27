@@ -143,7 +143,7 @@ public class Partida implements IObserver {
         for (int i = 0; i < jugadores.size(); i++) {
             Jugador jugador = jugadores.get(i);
             ManadaJugador manada = new ManadaJugador(jugador.getEspecie(), jugador);
-            manada.crearMiembros(mundo.getMapa().getZona(zonas.get(i)), new Random());
+            manada.crearMiembros(mundo.getMapa().getZona(zonas.get(i)), new Random(), mundo.getMapa());
             jugador.setManada(manada);
             jugador.setZonaVista(zonas.get(i));
             mundo.getManadasJugador().add(manada);
@@ -151,7 +151,8 @@ public class Partida implements IObserver {
         Vector<Especie> especiesBot = selector.especiesBot();
         for (int i = 0; i < especiesBot.size(); i++) {
             ManadaBot manada = new ManadaBot(especiesBot.get(i), zonas.get(jugadores.size() + i));
-            manada.crearMiembros(mundo.getMapa().getZona(zonas.get(jugadores.size() + i)), new Random());
+            manada.crearMiembros(mundo.getMapa().getZona(zonas.get(jugadores.size() + i)),
+                    new Random(), mundo.getMapa());
             mundo.getManadasBot().add(manada);
         }
         inicializador.colocarTazas(mundo);

@@ -2,6 +2,7 @@ package game;
 
 import java.util.Collections;
 import java.util.Random;
+import java.util.List;
 import java.util.Vector;
 import mapa.Camino;
 import mapa.Mapa;
@@ -80,7 +81,7 @@ public class InicializadorMundo {
         if (!mundo.getBanderas().isEmpty()) {
             throw new IllegalStateException("Las banderas ya fueron colocadas");
         }
-        Vector<ManadaJugador> manadas = mundo.getManadasJugador();
+        List<ManadaJugador> manadas = mundo.getManadasJugador();
         if (manadas.size() != 2) {
             throw new IllegalStateException("La partida debe tener exactamente dos manadas de jugador");
         }

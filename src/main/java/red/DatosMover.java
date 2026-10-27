@@ -1,9 +1,9 @@
 package red;
 
-import java.util.Vector;
+import java.util.List;
 
 public class DatosMover {
-    public Vector<Integer> idsAnimales;
+    public List<Integer> idsAnimales;
     public double destinoX;
     public double destinoY;
 }

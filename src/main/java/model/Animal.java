@@ -80,16 +80,8 @@ public abstract class Animal extends EntidadJuego {
         if (ruta == null || deltaSeg <= 0 || !estaVivo()) {
             return;
         }
-        Punto destino = ruta.puntoActual();
-        if (destino == null) {
-            return;
-        }
         double distancia = Constantes.VELOCIDAD_ANIMAL * deltaSeg;
-        Punto nuevo = this.posicion.moverHacia(destino, distancia);
-        this.posicion = nuevo;
-        if (this.posicion.distancia(destino) <= 0.0001) {
-            ruta.avanzar();
-        }
+        this.posicion = ruta.mover(this.posicion, distancia);
         notifyObservers(this);
     }
 
