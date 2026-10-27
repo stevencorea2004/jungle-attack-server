@@ -9,6 +9,7 @@ public abstract class Animal extends EntidadJuego {
     protected Manada manada;
     protected long ultimoAtaque;
     protected Ruta ruta;
+    protected Animal ultimoAtacante;
 
     public boolean estaVivo() {
         return energia > 0;
@@ -37,6 +38,7 @@ public abstract class Animal extends EntidadJuego {
             return false;
         }
         this.ultimoAtaque = ahora;
+        objetivo.ultimoAtacante = this;
         objetivo.recibirDanio(danio);
         notifyObservers(this);
         return true;
@@ -44,6 +46,34 @@ public abstract class Animal extends EntidadJuego {
 
     public void setRuta(Ruta ruta) {
         this.ruta = ruta;
+    }
+
+    public Ruta getRuta() {
+        return ruta;
+    }
+
+    public Animal getUltimoAtacante() {
+        return ultimoAtacante;
+    }
+
+    public int getEnergia() {
+        return energia;
+    }
+
+    public Especie getEspecie() {
+        return especie;
+    }
+
+    public Manada getManada() {
+        return manada;
+    }
+
+    public void setIdZona(int idZona) {
+        this.idZona = idZona;
+    }
+
+    public Punto getPosicion() {
+        return posicion;
     }
 
     public void avanzar(double deltaSeg) {

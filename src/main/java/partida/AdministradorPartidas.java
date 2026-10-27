@@ -24,6 +24,7 @@ public class AdministradorPartidas {
         Set<String> existentes = partidas.keySet();
         String codigo = generador.generar(existentes);
         Partida partida = new Partida(codigo);
+        partida.setAlTerminar(() -> partidas.remove(codigo, partida));
         partida.agregarJugador(anfitrion);
         partidas.put(codigo, partida);
         return partida;

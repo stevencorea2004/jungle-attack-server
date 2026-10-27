@@ -36,7 +36,12 @@ public class ManejadorCliente implements Runnable {
                 procesar(linea);
             }
         } catch (IOException e) {
-            // El cliente cortó la conexión; se cierra en el finally.
+            if (!cerrado.get()) {
+                System.err.println("Error leyendo mensajes del cliente: " + e.getMessage());
+            }
+        } catch (Error e) {
+            System.err.println("Error fatal atendiendo al cliente: " + e);
+            throw e;
         } finally {
             cerrar();
         }
@@ -50,7 +55,7 @@ public class ManejadorCliente implements Runnable {
             }
             enrutador.enrutar(this, mensaje);
         } catch (RuntimeException e) {
-            // JSON malo, tipo desconocido o un comando que falló: se avisa y la conexión sigue.
+            System.err.println("No se pudo procesar el mensaje del cliente: " + e.getMessage());
             enviar(FabricaMensajes.error("No se pudo procesar el mensaje: " + e.getMessage()));
         }
     }
@@ -72,9 +77,15 @@ public class ManejadorCliente implements Runnable {
         alDesconectar.run();
     }
 
-    /** Qué hacer cuando el cliente se va; más adelante, avisar a la Partida. */
+    /** Registra acciones que deben ejecutarse al desconectar al cliente. */
     public void setAlDesconectar(Runnable alDesconectar) {
-        this.alDesconectar = alDesconectar;
+        Runnable anterior = this.alDesconectar;
+        this.alDesconectar = () -> {
+            anterior.run();
+            if (alDesconectar != null) {
+                alDesconectar.run();
+            }
+        };
     }
 
     public Jugador getJugador() {

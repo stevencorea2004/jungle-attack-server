@@ -13,6 +13,10 @@ public class AnimalJugador extends Animal {
         this.objetivo = null;
     }
 
+    public Animal getObjetivo() {
+        return objetivo;
+    }
+
     @Override
     public int getEnergiaMax() {
         return Constantes.ENERGIA_MAX_JUGADOR;

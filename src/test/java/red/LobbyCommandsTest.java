@@ -3,6 +3,7 @@ package red;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.BufferedReader;
@@ -13,11 +14,17 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
+import model.Animal;
+import model.AnimalJugador;
 import model.Especie;
+import model.Punto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import partida.AdministradorPartidas;
+import partida.EstadoPartida;
+import partida.Partida;
 
 class LobbyCommandsTest {
     private ServidorJuego servidor;
@@ -30,6 +37,9 @@ class LobbyCommandsTest {
         enrutador.registrar(TipoMensaje.CREATE_MATCH, new ComandoCrearPartida(administrador));
         enrutador.registrar(TipoMensaje.JOIN_MATCH, new ComandoUnirse(administrador));
         enrutador.registrar(TipoMensaje.SELECT_ANIMAL, new ComandoElegirAnimal());
+        enrutador.registrar(TipoMensaje.MOVE_ANIMALS, new ComandoMover());
+        enrutador.registrar(TipoMensaje.ATTACK, new ComandoAtacar());
+        enrutador.registrar(TipoMensaje.VIEW_ZONE, new ComandoVerZona());
         servidor = new ServidorJuego(0, administrador, enrutador);
         servidor.iniciar();
     }
@@ -81,6 +91,45 @@ class LobbyCommandsTest {
         assertEquals(Especie.JAGUAR, seleccionInvitado.eleccionRival);
         assertFalse(seleccionInvitado.disponibles.contains(Especie.JAGUAR));
         assertFalse(seleccionInvitado.disponibles.contains(Especie.DANTA));
+        Mensaje inicioAnfitrion = anfitrion.leer();
+        assertEquals(2, servidor.getCantidadClientes());
+        Mensaje inicioInvitado = invitado.leer();
+        assertEquals(TipoMensaje.GAME_STARTED, inicioAnfitrion.getTipo());
+        assertEquals(TipoMensaje.GAME_STARTED, inicioInvitado.getTipo());
+        DatosInicio datosInicio = (DatosInicio) inicioAnfitrion.getPayload(DatosInicio.class);
+        assertEquals(10, datosInicio.manada.size());
+        assertEquals(12, datosInicio.mapa.zonas.size());
+        Mensaje estadoInicial = anfitrion.leer();
+        assertEquals(TipoMensaje.STATE_UPDATE, estadoInicial.getTipo());
+        EstadoVisible snapshot = (EstadoVisible) estadoInicial.getPayload(EstadoVisible.class);
+        assertTrue(snapshot.zonasVisibles.contains(snapshot.idZona));
+        assertEquals(TipoMensaje.STATE_UPDATE, invitado.leer().getTipo());
+
+        Partida partida = servidor.getAdministrador().buscar(partidaCreada.codigo);
+        assertEquals(EstadoPartida.EN_JUEGO, partida.getEstado());
+        assertEquals(2, partida.getMundo().getManadasJugador().size());
+        assertEquals(5, partida.getMundo().getManadasBot().size());
+
+        AnimalJugador atacante = (AnimalJugador) partida.getJugadores().get(0)
+                .getManada().getVivos().firstElement();
+        Punto posicionInicial = new Punto(atacante.getPosicion().getX(), atacante.getPosicion().getY());
+        DatosMover mover = new DatosMover();
+        mover.idsAnimales = new Vector<>(List.of(atacante.getId()));
+        mover.destinoX = 1_100;
+        mover.destinoY = 600;
+        anfitrion.enviar(TipoMensaje.MOVE_ANIMALS, mover);
+        Thread.sleep(150L);
+        assertNotNull(atacante.getRuta());
+        assertTrue(posicionInicial.distancia(atacante.getPosicion()) > 0);
+
+        Animal objetivo = partida.getMundo().getManadasBot().get(0).getVivos().firstElement();
+        objetivo.setUbicacion(objetivo.getId(), atacante.getPosicion(), atacante.getIdZona());
+        DatosAtacar atacar = new DatosAtacar();
+        atacar.idsAnimales = new Vector<>(List.of(atacante.getId()));
+        atacar.idObjetivo = objetivo.getId();
+        anfitrion.enviar(TipoMensaje.ATTACK, atacar);
+        Thread.sleep(100L);
+        assertSame(objetivo, atacante.getObjetivo());
     }
 
     @Test

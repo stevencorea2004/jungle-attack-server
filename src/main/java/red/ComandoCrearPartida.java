@@ -27,6 +27,7 @@ public class ComandoCrearPartida implements IComando {
         anfitrion.setConexion(cliente);
         Partida partida = administrador.crearPartida(anfitrion);
         cliente.setJugador(anfitrion);
+        cliente.setAlDesconectar(() -> partida.manejarDesconexion(anfitrion));
 
         DatosPartidaCreada respuesta = new DatosPartidaCreada();
         respuesta.codigo = partida.getCodigo();

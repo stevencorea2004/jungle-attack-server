@@ -1,10 +1,10 @@
 # Jungle Attack Server 
 
-Repo jungle-attack-server. El servidor es la autoridad: calcula movimiento, combate, tazas, bonos y victoria, y a cada cliente le manda solo lo que puede ver. La spec del cliente está en su propio doc. Cada paquete tiene su clase Main para pruebas unitarias.
+Repo jungle-attack-server. El servidor es la autoridad: calcula movimiento por rutas, combate, tazas, bonos y victoria, y a cada cliente le manda solo los contenidos de la zona que está viendo. Al iniciar ambos jugadores, construye un mapa conectado de 12 zonas y siete manadas. La spec del cliente está en su propio doc.
 
 ## Estructura Java
 
-Requiere JDK 25 (LTS) y Maven 3.9 o posterior. El proyecto está organizado en los paquetes `util`, `model`, `mapa`, `game`, `partida` y `red`. Las configuraciones que el spec no define quedan como marcadores por completar. Usa Maven y Gson; se compila con `mvn compile` y se ejecutan las pruebas JUnit 5 con `mvn test`. Las pruebas del model layer están en `src/test/java/model`.
+Requiere JDK 25 (LTS) y Maven 3.9 o posterior. El proyecto está organizado en los paquetes `util`, `model`, `mapa`, `game`, `partida` y `red`. El servidor escucha en el puerto 5000; las velocidades y radios de juego se definen en `util.Constantes`. Usa Maven y Gson; se compila con `mvn compile` y se ejecutan las pruebas JUnit 5 con `mvn test`.
 
 ## Patrón Observer y Utilidades (util)
 
@@ -541,10 +541,12 @@ Métodos:
 - DatosPartidaCreada: codigo: String
 - DatosSeleccion: disponibles: Vector, eleccionRival: Especie
 - DatosInicio: mapa: VistaMapa, zonaPropia: int, manada: Vector
-- EstadoVisible: idZona: int, animales: Vector, tazas: Vector, bandera: Punto, eventos: Vector, danio: int, tazasConsumidas: int, botsEliminados: int
+- EstadoVisible: idZona: int, animales: Vector, tazas: Vector, bandera: Punto, colorBandera: String, zonasVisibles: Vector, animalesVivos: int, eventos: Vector, danio: int, tazasConsumidas: int, botsEliminados: int
 - ResumenPartida: ganador: String, botsEliminados: Map, animalesPerdidos: Map, tazas: Map, duracionSeg: long
 - VistaAnimal: id: int, especie: Especie, esBot: boolean, esMio: boolean, x: double, y: double, energia: int
-- VistaMapa: zonas: Vector, caminos: Vector
+- VistaMapa: zonas: Vector<VistaZona>, caminos: Vector<VistaCamino>
+- VistaZona: id: int, x: double, y: double, ancho: double, alto: double
+- VistaCamino: zonaA: int, zonaB: int, puntos: Vector<Punto>
 
 ### IComando (Interfaz) — Patrón Command
 
@@ -565,7 +567,7 @@ Métodos:
 
 El servidor ya implementa crear partidas con códigos alfanuméricos únicos, unirse con comparación del código sin distinguir mayúsculas, el límite de dos jugadores y la selección exclusiva de especies. Al entrar el segundo jugador, ambos reciben MATCH\_JOINED y ANIMAL\_SELECTION; cada selección actualiza las especies disponibles y la elección del rival. Las cinco especies restantes quedan reservadas para bots.
 
-La selección todavía no inicia la partida: la creación del mapa, las manadas y el ciclo de juego pertenecen al motor pendiente. Los comandos MOVE\_ANIMALS, ATTACK y VIEW\_ZONE tampoco están implementados.
+Cuando ambos jugadores eligen una especie, el servidor crea el mapa conectado de 12 zonas, ubica las dos manadas de jugadores y las cinco manadas bot en zonas diferentes, coloca las tazas y banderas, y arranca el ciclo del juego. MOVE\_ANIMALS calcula una ruta sobre el grafo de zonas; ATTACK valida unidades y objetivo; VIEW\_ZONE solo permite elegir zonas que contienen animales propios vivos. Los snapshots envían únicamente los contenidos de la zona seleccionada y las zonas actualmente ocupadas por unidades propias.
 
 ### EnrutadorMensajes — Command: invocador
 
@@ -1027,6 +1029,9 @@ classDiagram
         +animales: Vector
         +tazas: Vector
         +bandera: Punto
+        +colorBandera: String
+        +zonasVisibles: Vector
+        +animalesVivos: int
         +eventos: Vector
         +danio: int
         +tazasConsumidas: int
@@ -1051,6 +1056,18 @@ classDiagram
         class VistaMapa {
         +zonas: Vector
         +caminos: Vector
+        }
+        class VistaZona {
+        +id: int
+        +x: double
+        +y: double
+        +ancho: double
+        +alto: double
+        }
+        class VistaCamino {
+        +zonaA: int
+        +zonaB: int
+        +puntos: Vector
         }
         class IComando {
         +ejecutar(cliente: ManejadorCliente, mensaje: Mensaje): void
@@ -1201,8 +1218,8 @@ classDiagram
     DatosInicio ..> VistaAnimal
     EstadoVisible ..> VistaAnimal
     EstadoVisible ..> Punto
-    VistaMapa ..> Zona
-    VistaMapa ..> Camino
+    VistaMapa ..> VistaZona
+    VistaMapa ..> VistaCamino
     EnrutadorMensajes o-- IComando : comandos
     ComandoCrearPartida ..> AdministradorPartidas
     ComandoUnirse ..> AdministradorPartidas

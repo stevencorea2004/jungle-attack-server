@@ -19,6 +19,9 @@ public class ComandoElegirAnimal implements IComando {
         Partida partida = jugador.getPartida();
         partida.elegirEspecie(jugador, datos.especie);
         notificarSeleccion(partida);
+        if (partida.todosEligieron()) {
+            partida.iniciar();
+        }
     }
 
     static void notificarSeleccion(Partida partida) {

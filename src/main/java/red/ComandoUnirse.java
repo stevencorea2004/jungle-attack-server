@@ -30,6 +30,7 @@ public class ComandoUnirse implements IComando {
         invitado.setConexion(cliente);
         Partida partida = administrador.unirse(datos.codigo, invitado);
         cliente.setJugador(invitado);
+        cliente.setAlDesconectar(() -> partida.manejarDesconexion(invitado));
 
         DatosPartidaCreada respuesta = new DatosPartidaCreada();
         respuesta.codigo = partida.getCodigo();

@@ -53,6 +53,10 @@ public class Jugador {
         this.zonaVista = zonaVista;
     }
 
+    public int getZonaVista() {
+        return zonaVista;
+    }
+
     public ManadaJugador getManada() {
         return manada;
     }

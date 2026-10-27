@@ -1,14 +1,90 @@
 package game;
 
 import java.util.Vector;
+import model.Animal;
+import model.Bandera;
+import model.ManadaBot;
+import model.ManadaJugador;
+import model.TazaCafe;
 import red.EstadoVisible;
+import red.VistaAnimal;
 
 public class ServicioVisibilidad {
     public Vector<Integer> zonasVisibles(Jugador jugador) {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        Vector<Integer> zonas = new Vector<>();
+        if (jugador == null || jugador.getManada() == null) {
+            return zonas;
+        }
+        for (Animal animal : jugador.getManada().getVivos()) {
+            if (!zonas.contains(animal.getIdZona())) {
+                zonas.add(animal.getIdZona());
+            }
+        }
+        return zonas;
     }
 
     public EstadoVisible crearSnapshot(MundoJuego mundo, Jugador jugador) {
-        throw new UnsupportedOperationException("Pendiente de implementación");
+        if (mundo == null || jugador == null || jugador.getManada() == null) {
+            throw new IllegalArgumentException("El mundo y el jugador inicializado son obligatorios");
+        }
+        Vector<Integer> visibles = zonasVisibles(jugador);
+        EstadoVisible estado = new EstadoVisible();
+        estado.zonasVisibles = visibles;
+        estado.animales = new Vector<>();
+        estado.tazas = new Vector<>();
+        estado.eventos = new Vector<>();
+        estado.animalesVivos = jugador.getManada().getVivos().size();
+        estado.danio = jugador.getManada().getDanio();
+        estado.tazasConsumidas = jugador.getTazasConsumidas();
+        estado.botsEliminados = jugador.getBotsEliminados();
+        int zona = visibles.isEmpty() ? jugador.getZonaVista()
+                : visibles.contains(jugador.getZonaVista())
+                ? jugador.getZonaVista() : visibles.firstElement();
+        jugador.setZonaVista(zona);
+        estado.idZona = zona;
+        if (visibles.isEmpty()) {
+            return estado;
+        }
+
+        for (ManadaJugador manada : mundo.getManadasJugador()) {
+            agregarAnimales(estado.animales, manada, jugador, zona);
+        }
+        for (ManadaBot manada : mundo.getManadasBot()) {
+            agregarAnimales(estado.animales, manada, jugador, zona);
+        }
+        for (TazaCafe taza : mundo.getTazas()) {
+            if (taza != null && !taza.isConsumida() && taza.getIdZona() == zona) {
+                estado.tazas.add(taza.getPos());
+            }
+        }
+        for (Bandera bandera : mundo.getBanderas()) {
+            if (bandera != null && bandera.getDueno() != jugador && bandera.getIdZona() == zona) {
+                estado.bandera = bandera.getPos();
+                estado.colorBandera = bandera.getColor();
+                break;
+            }
+        }
+        return estado;
+    }
+
+    private static void agregarAnimales(Vector<VistaAnimal> destino, model.Manada manada,
+            Jugador jugador, int zona) {
+        if (manada == null) {
+            return;
+        }
+        for (Animal animal : manada.getVivos()) {
+            if (animal.getIdZona() != zona) {
+                continue;
+            }
+            VistaAnimal vista = new VistaAnimal();
+            vista.id = animal.getId();
+            vista.especie = animal.getEspecie();
+            vista.esBot = animal.esBot();
+            vista.esMio = manada == jugador.getManada();
+            vista.x = animal.getPosicion().getX();
+            vista.y = animal.getPosicion().getY();
+            vista.energia = animal.getEnergia();
+            destino.add(vista);
+        }
     }
 }

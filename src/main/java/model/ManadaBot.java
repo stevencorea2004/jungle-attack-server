@@ -20,4 +20,9 @@ public class ManadaBot extends Manada {
         animal.manada = this;
         return animal;
     }
+
+    @Override
+    protected int getTamano() {
+        return Constantes.TAM_MANADA_BOT;
+    }
 }

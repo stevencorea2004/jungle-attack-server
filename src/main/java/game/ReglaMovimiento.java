@@ -17,6 +17,7 @@ public class ReglaMovimiento implements IReglaJuego {
             for (Animal animal : manada.getVivos()) {
                 if (animal != null) {
                     animal.avanzar(deltaSeg);
+                    actualizarZona(mundo, animal);
                 }
             }
         }
@@ -27,8 +28,16 @@ public class ReglaMovimiento implements IReglaJuego {
             for (Animal animal : manada.getVivos()) {
                 if (animal != null) {
                     animal.avanzar(deltaSeg);
+                    actualizarZona(mundo, animal);
                 }
             }
+        }
+    }
+
+    private static void actualizarZona(MundoJuego mundo, Animal animal) {
+        mapa.Zona zona = mundo.getMapa() == null ? null : mundo.getMapa().zonaEn(animal.getPosicion());
+        if (zona != null) {
+            animal.setIdZona(zona.getId());
         }
     }
 }

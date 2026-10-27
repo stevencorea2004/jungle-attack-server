@@ -30,6 +30,18 @@ public abstract class Manada {
         return getVivos().isEmpty();
     }
 
+    public Vector<Animal> getMiembros() {
+        return new Vector<>(miembros);
+    }
+
+    public int getDanio() {
+        return danio;
+    }
+
+    protected int getTamano() {
+        return Constantes.TAM_MANADA_JUGADOR;
+    }
+
     public void addDanio(int valor) {
         if (valor != 0) {
             this.danio += valor;
@@ -40,11 +52,11 @@ public abstract class Manada {
         if (zona == null) {
             return;
         }
-        for (int i = 0; i < Constantes.TAM_MANADA_JUGADOR; i++) {
+        for (int i = 0; i < getTamano(); i++) {
             Punto pos = zona.puntoAleatorio(random);
             Animal animal = crearMiembro(i, pos);
             if (animal != null) {
-                animal.id = i;
+                animal.id = especie.ordinal() * Constantes.TAM_MANADA_JUGADOR + i;
                 animal.posicion = pos;
                 animal.idZona = zona.getId();
                 animal.manada = this;
