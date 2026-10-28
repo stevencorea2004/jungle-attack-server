@@ -19,6 +19,7 @@ public final class ServerMain {
         enrutador.registrar(TipoMensaje.MOVE_ANIMALS, new ComandoMover());
         enrutador.registrar(TipoMensaje.ATTACK, new ComandoAtacar());
         enrutador.registrar(TipoMensaje.VIEW_ZONE, new ComandoVerZona());
+        enrutador.registrar(TipoMensaje.LEAVE_MATCH, new ComandoSalirPartida());
 
         ServidorJuego servidor = new ServidorJuego(Constantes.PUERTO, administrador, enrutador);
         servidor.iniciar();

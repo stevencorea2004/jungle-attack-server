@@ -4,10 +4,12 @@ import game.Jugador;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import mapa.Ruta;
 import model.Animal;
 import model.AnimalJugador;
 import partida.EstadoPartida;
 import partida.Partida;
+import util.Constantes;
 
 public class ComandoAtacar implements IComando {
     @Override
@@ -28,6 +30,7 @@ public class ComandoAtacar implements IComando {
 
         Set<Integer> idsUnicos = new HashSet<>();
         ArrayList<AnimalJugador> atacantes = new ArrayList<>();
+        ArrayList<Ruta> rutas = new ArrayList<>();
         for (Integer id : datos.idsAnimales) {
             if (id == null || !idsUnicos.add(id)) {
                 throw new IllegalArgumentException("La lista de animales contiene ids inválidos o repetidos");
@@ -36,10 +39,21 @@ public class ComandoAtacar implements IComando {
             if (!(propio instanceof AnimalJugador)) {
                 throw new IllegalArgumentException("Solo los animales del jugador pueden atacar");
             }
-            atacantes.add((AnimalJugador) propio);
+            AnimalJugador atacante = (AnimalJugador) propio;
+            Ruta ruta = null;
+            if (!atacante.estaEnRadio(objetivo, Constantes.RADIO_ENCUENTRO)) {
+                ruta = Ruta.crear(partida.getMundo().getMapa(), null,
+                        atacante.getPosicion(), objetivo.getPosicion());
+                if (!ruta.esValida()) {
+                    throw new IllegalArgumentException("No existe un camino transitable hasta el objetivo");
+                }
+            }
+            atacantes.add(atacante);
+            rutas.add(ruta);
         }
-        for (AnimalJugador atacante : atacantes) {
-            atacante.setRuta(null);
+        for (int i = 0; i < atacantes.size(); i++) {
+            AnimalJugador atacante = atacantes.get(i);
+            atacante.setRuta(rutas.get(i));
             atacante.setObjetivo(objetivo);
         }
     }

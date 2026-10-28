@@ -2,9 +2,12 @@ package mapa;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.awt.geom.Rectangle2D;
+import java.util.Random;
 import java.util.Vector;
 import model.Punto;
 import org.junit.jupiter.api.Test;
@@ -53,6 +56,26 @@ class ConstructorMapaTest {
         assertEquals(5.0, mapa.getCamino(1, 12).getPuntos().get(0).getX());
         assertThrows(IllegalArgumentException.class,
                 () -> constructor.conectar(2, 1, puntos(new Punto(0, 0))));
+    }
+
+    @Test
+    void generatedMapsVaryAndRoadsReachRegionBorders() {
+        Mapa primero = MainMapa.crearMapa(new Random(1));
+        Mapa segundo = MainMapa.crearMapa(new Random(2));
+
+        assertEquals(17, primero.getCaminos().size());
+        assertNotEquals(primero.getCaminos().get(0).getPuntos(),
+                segundo.getCaminos().get(0).getPuntos());
+        for (Camino camino : primero.getCaminos()) {
+            boolean tocaBorde = false;
+            for (Punto punto : camino.getPuntos()) {
+                if (punto.getX() % 320.0 == 0.0 || punto.getY() % 240.0 == 0.0) {
+                    tocaBorde = true;
+                    break;
+                }
+            }
+            assertTrue(tocaBorde, "Cada camino entre regiones debe alcanzar su borde compartido");
+        }
     }
 
     private static ConstructorMapa mapaConectado() {

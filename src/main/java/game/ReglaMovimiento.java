@@ -3,6 +3,7 @@ package game;
 import model.Animal;
 import model.ManadaBot;
 import model.ManadaJugador;
+import mapa.Zona;
 
 public class ReglaMovimiento implements IReglaJuego {
     @Override
@@ -35,9 +36,16 @@ public class ReglaMovimiento implements IReglaJuego {
     }
 
     private static void actualizarZona(MundoJuego mundo, Animal animal) {
-        mapa.Zona zona = mundo.getMapa() == null ? null : mundo.getMapa().zonaEn(animal.getPosicion());
+        Zona zona = mundo.getMapa() == null ? null : mundo.getMapa().zonaEn(animal.getPosicion());
         if (zona != null) {
+            int zonaAnterior = animal.getIdZona();
             animal.setIdZona(zona.getId());
+            if (zonaAnterior != zona.getId() && animal.getManada() instanceof ManadaJugador) {
+                game.Jugador dueno = ((ManadaJugador) animal.getManada()).getDueno();
+                if (dueno != null && dueno.getZonaVista() == zonaAnterior) {
+                    dueno.setZonaVista(zona.getId());
+                }
+            }
         }
     }
 }

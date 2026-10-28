@@ -10,4 +10,8 @@ public class VistaAnimal {
     public double x;
     public double y;
     public int energia;
+    public Integer idObjetivo;
+    public Double objetivoX;
+    public Double objetivoY;
+    public boolean atacando;
 }

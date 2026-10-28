@@ -2,6 +2,7 @@ package game;
 
 import java.util.Vector;
 import model.Animal;
+import model.AnimalJugador;
 import model.Bandera;
 import model.ManadaBot;
 import model.ManadaJugador;
@@ -37,12 +38,13 @@ public class ServicioVisibilidad {
         estado.danio = jugador.getManada().getDanio();
         estado.tazasConsumidas = jugador.getTazasConsumidas();
         estado.botsEliminados = jugador.getBotsEliminados();
-        int zona = visibles.isEmpty() ? jugador.getZonaVista()
-                : visibles.contains(jugador.getZonaVista())
-                ? jugador.getZonaVista() : visibles.firstElement();
+        int zona = jugador.getZonaVista();
+        if (mundo.getMapa() != null && mundo.getMapa().getZona(zona) == null && !visibles.isEmpty()) {
+            zona = visibles.firstElement();
+        }
         jugador.setZonaVista(zona);
         estado.idZona = zona;
-        if (visibles.isEmpty()) {
+        if (!visibles.contains(zona)) {
             return estado;
         }
 
@@ -84,6 +86,14 @@ public class ServicioVisibilidad {
             vista.x = animal.getPosicion().getX();
             vista.y = animal.getPosicion().getY();
             vista.energia = animal.getEnergia();
+            if (animal instanceof AnimalJugador) {
+                AnimalJugador animalJugador = (AnimalJugador) animal;
+                Animal objetivo = animalJugador.getObjetivo();
+                vista.idObjetivo = objetivo == null ? null : objetivo.getId();
+                vista.objetivoX = objetivo == null ? null : objetivo.getPosicion().getX();
+                vista.objetivoY = objetivo == null ? null : objetivo.getPosicion().getY();
+                vista.atacando = animalJugador.isAtacando();
+            }
             destino.add(vista);
         }
     }

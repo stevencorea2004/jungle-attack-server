@@ -1,6 +1,6 @@
 # Jungle Attack Server 
 
-Repo jungle-attack-server. El servidor es la autoridad: calcula movimiento por rutas, combate, tazas, bonos y victoria, y a cada cliente le manda solo los contenidos de la zona que está viendo. Al iniciar ambos jugadores, construye un mapa conectado de 12 zonas y siete manadas. La spec del cliente está en su propio doc.
+Repo jungle-attack-server. El servidor es la autoridad: calcula movimiento por rutas, combate, tazas, bonos y victoria, y a cada cliente le manda solo los contenidos de la zona que está viendo. Al iniciar ambos jugadores, construye un mapa conectado de 12 zonas con caminos aleatorios que cruzan los bordes compartidos; cuando un animal atraviesa una salida, la vista sigue la nueva región. Las especies elegidas por jugadores son exclusivas y LEAVE\_MATCH permite abandonar la partida. La spec del cliente está en su propio doc.
 
 ## Estructura Java
 
@@ -304,7 +304,7 @@ Las manadas aparecen sobre los caminos. El destino indicado por el cliente se aj
 
 ### MainMapa
 
-Prueba unitaria independiente para verificar que el mapa se construye con 12 zonas y que BFS y Dijkstra encuentran la ruta entre dos zonas.
+Genera un mapa conectado de 12 zonas con rutas curvas aleatorias que alcanzan los bordes compartidos para conectar regiones.
 
 ## 3. Game Layer (game)
 
@@ -497,7 +497,7 @@ Las clases de protocolo (TipoMensaje, Mensaje, CodificadorJson, FabricaMensajes 
 
 ### TipoMensaje (Enum)
 
-Valores: CREATE\_MATCH, JOIN\_MATCH, SELECT\_ANIMAL, MOVE\_ANIMALS, ATTACK, VIEW\_ZONE, MATCH\_CREATED, MATCH\_JOINED, ERROR, ANIMAL\_SELECTION, GAME\_STARTED, STATE\_UPDATE, GAME\_OVER
+Valores: CREATE\_MATCH, JOIN\_MATCH, SELECT\_ANIMAL, MOVE\_ANIMALS, ATTACK, VIEW\_ZONE, LEAVE\_MATCH, MATCH\_CREATED, MATCH\_JOINED, ERROR, ANIMAL\_SELECTION, GAME\_STARTED, STATE\_UPDATE, GAME\_OVER
 
 ### Mensaje
 
@@ -572,7 +572,7 @@ Métodos:
 
 El servidor ya implementa crear partidas con códigos alfanuméricos únicos, unirse con comparación del código sin distinguir mayúsculas, el límite de dos jugadores y la selección exclusiva de especies. Al entrar el segundo jugador, ambos reciben MATCH\_JOINED y ANIMAL\_SELECTION; cada selección actualiza las especies disponibles y la elección del rival. Las cinco especies restantes quedan reservadas para bots.
 
-Cuando ambos jugadores eligen una especie, el servidor crea el mapa conectado de 12 zonas, ubica las dos manadas de jugadores y las cinco manadas bot en zonas diferentes, coloca las tazas y banderas, y arranca el ciclo del juego. MOVE\_ANIMALS calcula una ruta sobre el grafo de zonas; ATTACK valida unidades y objetivo; VIEW\_ZONE solo permite elegir zonas que contienen animales propios vivos. Los snapshots envían únicamente los contenidos de la zona seleccionada y las zonas actualmente ocupadas por unidades propias.
+Cuando ambos jugadores eligen una especie, el servidor crea el mapa conectado de 12 zonas, ubica las dos manadas de jugadores y las cinco manadas bot en zonas diferentes, coloca las tazas y banderas, y arranca el ciclo del juego. MOVE\_ANIMALS calcula una ruta sobre el grafo de zonas; ATTACK valida unidades y objetivo; VIEW\_ZONE permite seleccionar cualquier zona existente. Los snapshots solo incluyen contenidos en zonas con animales propios vivos y enumeran dichas zonas para que el cliente represente las demás bajo niebla.
 
 ### EnrutadorMensajes — Command: invocador
 

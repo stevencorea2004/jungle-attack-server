@@ -32,7 +32,8 @@ class RutaTest {
         for (int i = 0; i < 10; i++) {
             Punto anterior = posicion;
             posicion = ruta.mover(posicion, 37.0);
-            assertEquals(37.0, anterior.distancia(posicion), 0.000001);
+            assertTrue(anterior.distancia(posicion) <= 37.000001);
+            assertTrue(anterior.distancia(posicion) > 0.0);
             assertTrue(estaSobreCamino(mapa, posicion));
         }
     }
