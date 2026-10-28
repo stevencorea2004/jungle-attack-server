@@ -1,4 +1,12 @@
 -------------------------------------------------------------------------------
 Test set: game.InicializadorMundoTest
 -------------------------------------------------------------------------------
+<<<<<<< HEAD
 Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in game.InicializadorMundoTest
+=======
+<<<<<<< HEAD
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in game.InicializadorMundoTest
+=======
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 s -- in game.InicializadorMundoTest
+>>>>>>> ac82e85ab902aafa0ca92da386445ebb9d957952
+>>>>>>> 63048cbbc55249a54cc8924d294b9f049a05c510

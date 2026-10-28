@@ -1,4 +1,12 @@
 -------------------------------------------------------------------------------
 Test set: game.GameRulesTest
 -------------------------------------------------------------------------------
+<<<<<<< HEAD
 Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.067 s -- in game.GameRulesTest
+=======
+<<<<<<< HEAD
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.074 s -- in game.GameRulesTest
+=======
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.107 s -- in game.GameRulesTest
+>>>>>>> ac82e85ab902aafa0ca92da386445ebb9d957952
+>>>>>>> 63048cbbc55249a54cc8924d294b9f049a05c510

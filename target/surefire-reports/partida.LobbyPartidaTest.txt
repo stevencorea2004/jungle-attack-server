@@ -1,4 +1,12 @@
 -------------------------------------------------------------------------------
 Test set: partida.LobbyPartidaTest
 -------------------------------------------------------------------------------
+<<<<<<< HEAD
 Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 s -- in partida.LobbyPartidaTest
+=======
+<<<<<<< HEAD
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 s -- in partida.LobbyPartidaTest
+=======
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.018 s -- in partida.LobbyPartidaTest
+>>>>>>> ac82e85ab902aafa0ca92da386445ebb9d957952
+>>>>>>> 63048cbbc55249a54cc8924d294b9f049a05c510

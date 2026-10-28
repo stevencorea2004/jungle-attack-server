@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<<<<<<< HEAD
 <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="game.GameRulesTest" time="0.067" tests="9" errors="0" skipped="0" failures="0">
+=======
+<<<<<<< HEAD
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="game.GameRulesTest" time="0.074" tests="9" errors="0" skipped="0" failures="0">
+=======
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="game.GameRulesTest" time="0.107" tests="9" errors="0" skipped="0" failures="0">
+>>>>>>> ac82e85ab902aafa0ca92da386445ebb9d957952
+>>>>>>> 63048cbbc55249a54cc8924d294b9f049a05c510
   <properties>
     <property name="java.specification.version" value="27"/>
     <property name="sun.cpu.isalist" value="amd64"/>
@@ -13,9 +21,21 @@
     <property name="os.name" value="Windows 11"/>
     <property name="java.vm.specification.version" value="27"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
+<<<<<<< HEAD
     <property name="user.country" value="ES"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk-27\bin"/>
     <property name="sun.java.command" value="C:\Users\Marfr\AppData\Local\Temp\surefire1949715597812959644\surefirebooter-20261027232015250_3.jar C:\Users\Marfr\AppData\Local\Temp\surefire1949715597812959644 2026-10-27T23-20-15_132-jvmRun1 surefire-20261027232015250_1tmp surefire_0-20261027232015250_2tmp"/>
+=======
+<<<<<<< HEAD
+    <property name="user.country" value="US"/>
+    <property name="sun.boot.library.path" value="C:\Program Files\Eclipse Adoptium\jdk-25.0.4.101-hotspot\bin"/>
+    <property name="sun.java.command" value="C:\Users\steve\AppData\Local\Temp\surefire15163494927814900641\surefirebooter-20261027224149083_3.jar C:\Users\steve\AppData\Local\Temp\surefire15163494927814900641 2026-10-27T22-41-48_972-jvmRun1 surefire-20261027224149083_1tmp surefire_0-20261027224149083_2tmp"/>
+=======
+    <property name="user.country" value="ES"/>
+    <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk-27\bin"/>
+    <property name="sun.java.command" value="C:\Users\Marfr\AppData\Local\Temp\surefire5511337938954115076\surefirebooter-20261027223100882_3.jar C:\Users\Marfr\AppData\Local\Temp\surefire5511337938954115076 2026-10-27T22-31-00_748-jvmRun1 surefire-20261027223100882_1tmp surefire_0-20261027223100882_2tmp"/>
+>>>>>>> ac82e85ab902aafa0ca92da386445ebb9d957952
+>>>>>>> 63048cbbc55249a54cc8924d294b9f049a05c510
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="C:\Users\Marfr\Desktop\Semestre_2\POO\Caso#2\jungle-attack-server\target\test-classes;C:\Users\Marfr\Desktop\Semestre_2\POO\Caso#2\jungle-attack-server\target\classes;C:\Users\Marfr\.m2\repository\com\google\code\gson\gson\2.11.0\gson-2.11.0.jar;C:\Users\Marfr\.m2\repository\com\google\errorprone\error_prone_annotations\2.27.0\error_prone_annotations-2.27.0.jar;C:\Users\Marfr\.m2\repository\org\junit\jupiter\junit-jupiter\5.11.4\junit-jupiter-5.11.4.jar;C:\Users\Marfr\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.11.4\junit-jupiter-api-5.11.4.jar;C:\Users\Marfr\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\Marfr\.m2\repository\org\junit\platform\junit-platform-commons\1.11.4\junit-platform-commons-1.11.4.jar;C:\Users\Marfr\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\Marfr\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.11.4\junit-jupiter-params-5.11.4.jar;C:\Users\Marfr\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.11.4\junit-jupiter-engine-5.11.4.jar;C:\Users\Marfr\.m2\repository\org\junit\platform\junit-platform-engine\1.11.4\junit-platform-engine-1.11.4.jar;"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -30,7 +50,15 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
+<<<<<<< HEAD
     <property name="surefire.real.class.path" value="C:\Users\Marfr\AppData\Local\Temp\surefire1949715597812959644\surefirebooter-20261027232015250_3.jar"/>
+=======
+<<<<<<< HEAD
+    <property name="surefire.real.class.path" value="C:\Users\steve\AppData\Local\Temp\surefire15163494927814900641\surefirebooter-20261027224149083_3.jar"/>
+=======
+    <property name="surefire.real.class.path" value="C:\Users\Marfr\AppData\Local\Temp\surefire5511337938954115076\surefirebooter-20261027223100882_3.jar"/>
+>>>>>>> ac82e85ab902aafa0ca92da386445ebb9d957952
+>>>>>>> 63048cbbc55249a54cc8924d294b9f049a05c510
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="27+35-2325"/>
@@ -59,6 +87,7 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="71.0"/>
   </properties>
+<<<<<<< HEAD
   <testcase name="everySecondBotKillRaisesLivingAnimalsEnergy" classname="game.GameRulesTest" time="0.022"/>
   <testcase name="generatedMapContainsTwelveConnectedZones" classname="game.GameRulesTest" time="0.005"/>
   <testcase name="visibilitySnapshotContainsOnlyTheSelectedCurrentlyOccupiedZone" classname="game.GameRulesTest" time="0.006"/>
@@ -68,4 +97,27 @@
   <testcase name="selectedZoneWithoutOwnAnimalsReturnsNoContentsForFogView" classname="game.GameRulesTest" time="0.002"/>
   <testcase name="selectedPlayerAnimalsAttackOnlyAtCooldownIntervals" classname="game.GameRulesTest" time="0.0"/>
   <testcase name="coffeeAppliesPackDamageAndUpdatesPlayerCounterOnce" classname="game.GameRulesTest" time="0.003"/>
+=======
+<<<<<<< HEAD
+  <testcase name="everySecondBotKillRaisesLivingAnimalsEnergy" classname="game.GameRulesTest" time="0.023"/>
+  <testcase name="generatedMapContainsTwelveConnectedZones" classname="game.GameRulesTest" time="0.003"/>
+  <testcase name="visibilitySnapshotContainsOnlyTheSelectedCurrentlyOccupiedZone" classname="game.GameRulesTest" time="0.001"/>
+  <testcase name="opponentFlagTouchSetsTheWinningPlayer" classname="game.GameRulesTest" time="0.002"/>
+  <testcase name="playerAnimalsDoNotPatrolAutomatically" classname="game.GameRulesTest" time="0.002"/>
+  <testcase name="botsPatrolAlongPathsWithinTheirStartingZone" classname="game.GameRulesTest" time="0.01"/>
+  <testcase name="selectedPlayerAnimalsAttackOnlyAtCooldownIntervals" classname="game.GameRulesTest" time="0.0"/>
+  <testcase name="coffeeAppliesPackDamageAndUpdatesPlayerCounterOnce" classname="game.GameRulesTest" time="0.001"/>
+  <testcase name="botsOutsideTheMapDoNotStopMovementRule" classname="game.GameRulesTest" time="0.004"/>
+=======
+  <testcase name="everySecondBotKillRaisesLivingAnimalsEnergy" classname="game.GameRulesTest" time="0.037"/>
+  <testcase name="generatedMapContainsTwelveConnectedZones" classname="game.GameRulesTest" time="0.009"/>
+  <testcase name="visibilitySnapshotContainsOnlyTheSelectedCurrentlyOccupiedZone" classname="game.GameRulesTest" time="0.004"/>
+  <testcase name="opponentFlagTouchSetsTheWinningPlayer" classname="game.GameRulesTest" time="0.003"/>
+  <testcase name="playerViewFollowsAnAnimalAcrossARegionExit" classname="game.GameRulesTest" time="0.002"/>
+  <testcase name="selectedPlayerAnimalMovesToTargetBeforeStartingAttack" classname="game.GameRulesTest" time="0.009"/>
+  <testcase name="selectedZoneWithoutOwnAnimalsReturnsNoContentsForFogView" classname="game.GameRulesTest" time="0.002"/>
+  <testcase name="selectedPlayerAnimalsAttackOnlyAtCooldownIntervals" classname="game.GameRulesTest" time="0.001"/>
+  <testcase name="coffeeAppliesPackDamageAndUpdatesPlayerCounterOnce" classname="game.GameRulesTest" time="0.005"/>
+>>>>>>> ac82e85ab902aafa0ca92da386445ebb9d957952
+>>>>>>> 63048cbbc55249a54cc8924d294b9f049a05c510
 </testsuite>
