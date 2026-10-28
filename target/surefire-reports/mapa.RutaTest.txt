@@ -1,8 +1,0 @@
--------------------------------------------------------------------------------
-Test set: mapa.RutaTest
--------------------------------------------------------------------------------
-<<<<<<< HEAD
-Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 s -- in mapa.RutaTest
-=======
-Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 s -- in mapa.RutaTest
->>>>>>> ac82e85ab902aafa0ca92da386445ebb9d957952

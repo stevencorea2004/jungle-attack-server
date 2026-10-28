@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 classpath:C:\Users\steve\OneDrive\Escritorio\Caso#2\jungle-attack-server\target\classes	80:4b99d8f094164b464fdeec294375484bb320e902d452b42b74b3bc3befa14e63
 classpath:C:\Users\steve\.m2\repository\com\google\code\gson\gson\2.11.0\gson-2.11.0.jar	298435:1792982954261
 classpath:C:\Users\steve\.m2\repository\com\google\errorprone\error_prone_annotations\2.27.0\error_prone_annotations-2.27.0.jar	19370:1792982954386
@@ -12,6 +13,9 @@ classpath:C:\Users\steve\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5
 classpath:C:\Users\steve\.m2\repository\org\junit\platform\junit-platform-engine\1.11.4\junit-platform-engine-1.11.4.jar	246800:1792985877510
 =======
 classpath:C:\Users\Marfr\Desktop\Semestre_2\POO\Caso#2\jungle-attack-server\target\classes	81:39a9ae43fc0203f7e344385f10d1ee62faebfef5339704836a7be44b2aac06fa
+=======
+classpath:C:\Users\Marfr\Desktop\Semestre_2\POO\Caso#2\jungle-attack-server\target\classes	81:c53d8e3f7f2c4ac5dda05e505b218fca8048358011bfc49299cdbba1e21a9391
+>>>>>>> 6f78c850a8db3919a03352cf45987739ee464a6c
 classpath:C:\Users\Marfr\.m2\repository\com\google\code\gson\gson\2.11.0\gson-2.11.0.jar	298435:1792964782859
 classpath:C:\Users\Marfr\.m2\repository\com\google\errorprone\error_prone_annotations\2.27.0\error_prone_annotations-2.27.0.jar	19370:1792964783239
 classpath:C:\Users\Marfr\.m2\repository\org\junit\jupiter\junit-jupiter\5.11.4\junit-jupiter-5.11.4.jar	6367:1792985159596
