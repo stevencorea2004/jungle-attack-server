@@ -4,6 +4,7 @@ import java.util.Vector;
 import java.util.HashMap;
 import java.util.Map;
 import model.Animal;
+import model.AnimalBot;
 import model.AnimalJugador;
 import model.Bandera;
 import model.ManadaBot;
@@ -99,6 +100,13 @@ public class ServicioVisibilidad {
                 vista.objetivoX = objetivo == null ? null : objetivo.getPosicion().getX();
                 vista.objetivoY = objetivo == null ? null : objetivo.getPosicion().getY();
                 vista.atacando = animalJugador.isAtacando();
+            } else if (animal instanceof AnimalBot) {
+                AnimalBot animalBot = (AnimalBot) animal;
+                Animal objetivo = animalBot.getObjetivo();
+                vista.idObjetivo = objetivo == null ? null : objetivo.getId();
+                vista.objetivoX = objetivo == null ? null : objetivo.getPosicion().getX();
+                vista.objetivoY = objetivo == null ? null : objetivo.getPosicion().getY();
+                vista.atacando = animalBot.isAtacando();
             }
             destino.add(vista);
         }

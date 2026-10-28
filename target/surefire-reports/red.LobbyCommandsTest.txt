@@ -1,16 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: red.LobbyCommandsTest
 -------------------------------------------------------------------------------
-<<<<<<< HEAD
-Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 15.43 s -- in red.LobbyCommandsTest
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.717 s -- in red.LobbyCommandsTest
-=======
-Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.120 s -- in red.LobbyCommandsTest
->>>>>>> ac82e85ab902aafa0ca92da386445ebb9d957952
-=======
-Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 16.52 s -- in red.LobbyCommandsTest
->>>>>>> 6f78c850a8db3919a03352cf45987739ee464a6c
->>>>>>> 63048cbbc55249a54cc8924d294b9f049a05c510
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 9.062 s -- in red.LobbyCommandsTest

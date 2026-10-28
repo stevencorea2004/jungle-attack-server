@@ -6,9 +6,11 @@ import mapa.Mapa;
 import mapa.Ruta;
 import mapa.Zona;
 import model.Animal;
+import model.AnimalBot;
 import model.ManadaBot;
 import model.ManadaJugador;
 import model.Punto;
+import util.Constantes;
 
 public class ReglaMovimiento implements IReglaJuego {
     private final Random random;
@@ -46,6 +48,24 @@ public class ReglaMovimiento implements IReglaJuego {
             }
             for (Animal animal : manada.getVivos()) {
                 if (animal != null) {
+                    if (animal instanceof AnimalBot) {
+                        AnimalBot bot = (AnimalBot) animal;
+                        if (bot.isAtacando()) {
+                            bot.setRuta(null);
+                            continue;
+                        }
+                        Animal objetivo = bot.getObjetivo();
+                        if (objetivo != null && objetivo.estaVivo()
+                                && bot.estaEnRadio(objetivo, Constantes.RADIO_ENCUENTRO)) {
+                            bot.setRuta(null);
+                            continue;
+                        }
+                        if (objetivo != null && objetivo.estaVivo()) {
+                            animal.avanzar(deltaSeg);
+                            actualizarZona(mundo, animal);
+                            continue;
+                        }
+                    }
                     if (!prepararPatrulla(mundo.getMapa(), animal)) {
                         animal.setRuta(null);
                         continue;
