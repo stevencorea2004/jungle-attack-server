@@ -1,6 +1,8 @@
 package game;
 
 import java.util.Vector;
+import java.util.HashMap;
+import java.util.Map;
 import model.Animal;
 import model.AnimalJugador;
 import model.Bandera;
@@ -32,6 +34,10 @@ public class ServicioVisibilidad {
         EstadoVisible estado = new EstadoVisible();
         estado.zonasVisibles = visibles;
         estado.animales = new Vector<>();
+        estado.animalesPorZona = new HashMap<>();
+        for (Animal animal : jugador.getManada().getVivos()) {
+            estado.animalesPorZona.merge(animal.getIdZona(), 1, Integer::sum);
+        }
         estado.tazas = new Vector<>();
         estado.eventos = new Vector<>();
         estado.animalesVivos = jugador.getManada().getVivos().size();

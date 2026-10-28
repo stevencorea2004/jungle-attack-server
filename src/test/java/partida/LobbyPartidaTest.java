@@ -73,6 +73,24 @@ class LobbyPartidaTest {
         assertNotNull(partida.getRival(anfitrion));
     }
 
+    @Test
+    void deselectionReleasesSpeciesWhileMatchIsStillSelecting() {
+        Partida partida = new Partida("B8K2");
+        Jugador anfitrion = jugador("Ana");
+        Jugador invitado = jugador("Luis");
+        partida.agregarJugador(anfitrion);
+        partida.agregarJugador(invitado);
+        partida.elegirEspecie(anfitrion, Especie.JAGUAR);
+
+        partida.deseleccionarEspecie(anfitrion);
+
+        assertEquals(null, partida.getEleccion(anfitrion));
+        assertEquals(null, anfitrion.getEspecie());
+        assertTrue(partida.getEspeciesDisponibles().contains(Especie.JAGUAR));
+        partida.elegirEspecie(invitado, Especie.JAGUAR);
+        assertEquals(Especie.JAGUAR, partida.getEleccion(invitado));
+    }
+
     private static Jugador jugador(String nickname) {
         Jugador jugador = new Jugador();
         jugador.setNickname(nickname);

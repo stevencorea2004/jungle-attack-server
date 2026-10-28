@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.awt.geom.Rectangle2D;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import mapa.BuscadorBFS;
 import mapa.Camino;
@@ -213,6 +214,7 @@ class GameRulesTest {
         assertEquals(1, snapshot.zonasVisibles.size());
         assertEquals(10, snapshot.animalesVivos);
         assertEquals(10, snapshot.animales.size());
+        assertEquals(Map.of(1, 10), snapshot.animalesPorZona);
         assertTrue(snapshot.animales.stream().allMatch(animal -> animal.esMio));
     }
 
@@ -238,6 +240,7 @@ class GameRulesTest {
 
         assertEquals(2, snapshot.idZona);
         assertEquals(List.of(1), snapshot.zonasVisibles);
+        assertEquals(Map.of(1, 10), snapshot.animalesPorZona);
         assertTrue(snapshot.animales.isEmpty());
         assertTrue(snapshot.tazas.isEmpty());
         assertNull(snapshot.bandera);

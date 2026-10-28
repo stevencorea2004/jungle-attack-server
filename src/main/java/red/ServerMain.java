@@ -16,6 +16,7 @@ public final class ServerMain {
         enrutador.registrar(TipoMensaje.CREATE_MATCH, new ComandoCrearPartida(administrador));
         enrutador.registrar(TipoMensaje.JOIN_MATCH, new ComandoUnirse(administrador));
         enrutador.registrar(TipoMensaje.SELECT_ANIMAL, new ComandoElegirAnimal());
+        enrutador.registrar(TipoMensaje.DESELECT_ANIMAL, new ComandoDeseleccionarAnimal());
         enrutador.registrar(TipoMensaje.MOVE_ANIMALS, new ComandoMover());
         enrutador.registrar(TipoMensaje.ATTACK, new ComandoAtacar());
         enrutador.registrar(TipoMensaje.VIEW_ZONE, new ComandoVerZona());

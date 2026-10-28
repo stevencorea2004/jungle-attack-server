@@ -65,6 +65,7 @@ red\DatosVerZona.class
 mapa\Zona.class
 model\AnimalBot.class
 mapa\Mapa$SegmentoZona.class
+red\ComandoDeseleccionarAnimal.class
 model\EntidadJuego.class
 game\CicloJuego.class
 red\FabricaMensajes.class

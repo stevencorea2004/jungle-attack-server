@@ -4,6 +4,7 @@ public enum TipoMensaje {
     CREATE_MATCH,
     JOIN_MATCH,
     SELECT_ANIMAL,
+    DESELECT_ANIMAL,
     MOVE_ANIMALS,
     ATTACK,
     VIEW_ZONE,

@@ -3,7 +3,9 @@ package red;
 import game.Jugador;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import mapa.Ruta;
 import model.Animal;
 import model.AnimalJugador;
@@ -12,6 +14,9 @@ import partida.EstadoPartida;
 import partida.Partida;
 
 public class ComandoMover implements IComando {
+    private static final double DISPERSION_MINIMA = 18.0;
+    private static final double DISPERSION_MAXIMA = 42.0;
+
     @Override
     public void ejecutar(ManejadorCliente cliente, Mensaje mensaje) {
         Jugador jugador = jugadorEnPartida(cliente);
@@ -43,6 +48,11 @@ public class ComandoMover implements IComando {
             if (!ruta.esValida()) {
                 throw new IllegalArgumentException("No existe un camino transitable hasta el destino");
             }
+            if (animales.size() > 1) {
+                double dispersion = ThreadLocalRandom.current()
+                        .nextDouble(DISPERSION_MINIMA, DISPERSION_MAXIMA);
+                ruta = recortarFinalRuta(ruta, dispersion);
+            }
             rutas.add(ruta);
         }
         for (int i = 0; i < animales.size(); i++) {
@@ -52,6 +62,35 @@ public class ComandoMover implements IComando {
                 ((AnimalJugador) animal).limpiarObjetivo();
             }
         }
+    }
+
+    static Ruta recortarFinalRuta(Ruta ruta, double distancia) {
+        if (ruta == null || !ruta.esValida() || !Double.isFinite(distancia) || distancia <= 0.0) {
+            return ruta;
+        }
+
+        List<Punto> puntos = ruta.getPuntos();
+        double largoTotal = 0.0;
+        for (int i = 1; i < puntos.size(); i++) {
+            largoTotal += puntos.get(i - 1).distancia(puntos.get(i));
+        }
+        if (largoTotal <= 0.0) {
+            return ruta;
+        }
+
+        double restante = Math.min(distancia, largoTotal * 0.25);
+        for (int i = puntos.size() - 1; i > 0; i--) {
+            Punto anterior = puntos.get(i - 1);
+            Punto actual = puntos.get(i);
+            double largoSegmento = anterior.distancia(actual);
+            if (restante <= largoSegmento) {
+                List<Punto> rutaDispersa = new ArrayList<>(puntos.subList(0, i));
+                rutaDispersa.add(actual.moverHacia(anterior, restante));
+                return new Ruta(rutaDispersa);
+            }
+            restante -= largoSegmento;
+        }
+        return ruta;
     }
 
     static Jugador jugadorEnPartida(ManejadorCliente cliente) {

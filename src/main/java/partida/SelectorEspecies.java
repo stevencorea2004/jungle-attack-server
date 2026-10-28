@@ -26,6 +26,15 @@ public class SelectorEspecies {
         return true;
     }
 
+    public synchronized boolean deseleccionar(Jugador jugador) {
+        Especie elegida = elecciones.remove(jugador);
+        if (elegida == null) {
+            return false;
+        }
+        disponibles.add(elegida);
+        return true;
+    }
+
     public synchronized boolean todosEligieron() {
         return elecciones.size() >= 2;
     }

@@ -87,6 +87,19 @@ public class Partida implements IObserver {
         jugador.setEspecie(especie);
     }
 
+    public synchronized void deseleccionarEspecie(Jugador jugador) {
+        if (estado != EstadoPartida.ELIGIENDO_ANIMALES) {
+            throw new IllegalStateException("La partida ya no está en fase de selección");
+        }
+        if (!jugadores.contains(jugador)) {
+            throw new IllegalArgumentException("El jugador no pertenece a esta partida");
+        }
+        if (!selector.deseleccionar(jugador)) {
+            throw new IllegalStateException("El jugador no tiene una especie seleccionada");
+        }
+        jugador.setEspecie(null);
+    }
+
     public synchronized Jugador getRival(Jugador jugador) {
         if (!jugadores.contains(jugador)) {
             return null;
