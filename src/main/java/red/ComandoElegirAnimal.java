@@ -32,6 +32,7 @@ public class ComandoElegirAnimal implements IComando {
             }
             DatosSeleccion datos = new DatosSeleccion();
             datos.disponibles = partida.getEspeciesDisponibles();
+            datos.eleccionPropiaConfirmada = partida.getEleccion(jugador) != null;
             Jugador rival = partida.getRival(jugador);
             datos.eleccionRival = rival == null ? null : partida.getEleccion(rival);
             jugador.getConexion().enviar(FabricaMensajes.crear(TipoMensaje.ANIMAL_SELECTION, datos));
