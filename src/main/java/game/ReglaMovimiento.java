@@ -1,17 +1,14 @@
 package game;
 
 import java.util.Random;
+
 import mapa.Mapa;
 import mapa.Ruta;
 import mapa.Zona;
 import model.Animal;
 import model.ManadaBot;
 import model.ManadaJugador;
-<<<<<<< HEAD
 import model.Punto;
-=======
-import mapa.Zona;
->>>>>>> ac82e85ab902aafa0ca92da386445ebb9d957952
 
 public class ReglaMovimiento implements IReglaJuego {
     private final Random random;
