@@ -1,8 +1,9 @@
 package game;
 
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.Random;
 import java.util.List;
+import java.util.Random;
 import java.util.Vector;
 import mapa.Camino;
 import mapa.Mapa;
@@ -108,7 +109,10 @@ public class InicializadorMundo {
             }
 
             Bandera bandera = new Bandera(dueno, i == 0 ? "azul" : "rojo");
-            bandera.setUbicacion(i, zona.puntoAleatorio(random), idZona);
+            Punto posicion = zona.puntoAleatorio(random);
+            Punto conexion = mundo.getMapa().puntoMasCercanoEnZona(idZona, posicion);
+            mundo.getMapa().agregarCaminoLocal(idZona, Arrays.asList(conexion, posicion));
+            bandera.setUbicacion(i, posicion, idZona);
             banderas.add(bandera);
             duenos.add(dueno);
         }

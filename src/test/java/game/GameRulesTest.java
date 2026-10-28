@@ -1,10 +1,7 @@
 package game;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-=======
->>>>>>> ac82e85ab902aafa0ca92da386445ebb9d957952
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;

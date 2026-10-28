@@ -11,7 +11,9 @@ import java.util.Random;
 import java.util.Set;
 import java.util.Vector;
 import mapa.ConstructorMapa;
+import mapa.MainMapa;
 import mapa.Mapa;
+import mapa.Ruta;
 import mapa.Zona;
 import model.Animal;
 import model.Especie;
@@ -68,6 +70,60 @@ class InicializadorMundoTest {
         assertEquals(2, jugadorRojo.getBandera().getIdZona());
         assertTrue(mundo.getMapa().getZona(1).contiene(jugadorAzul.getBandera().getPos()));
         assertTrue(mundo.getMapa().getZona(2).contiene(jugadorRojo.getBandera().getPos()));
+        EstadoVisible estadoAzul = new ServicioVisibilidad().crearSnapshot(mundo, jugadorAzul);
+        EstadoVisible estadoRojo = new ServicioVisibilidad().crearSnapshot(mundo, jugadorRojo);
+        assertEquals(jugadorAzul.getBandera().getPos(), estadoAzul.bandera);
+        assertEquals("azul", estadoAzul.colorBandera);
+        assertEquals(jugadorRojo.getBandera().getPos(), estadoRojo.bandera);
+        assertEquals("rojo", estadoRojo.colorBandera);
+        assertEquals(13, mundo.getMapa().getCaminos().size());
+        assertTrue(mundo.getMapa().getVecinos(1).stream().noneMatch(vecino -> vecino.getId() == 1));
+        assertTrue(mundo.getMapa().getVecinos(2).stream().noneMatch(vecino -> vecino.getId() == 2));
+        for (var bandera : mundo.getBanderas()) {
+            var caminoBandera = mundo.getMapa().getCaminos().stream()
+                    .filter(camino -> camino.getIdZonaA() == bandera.getIdZona()
+                            && camino.getIdZonaB() == bandera.getIdZona())
+                    .findFirst()
+                    .orElseThrow();
+            assertEquals(bandera.getPos(), caminoBandera.getPuntos().lastElement());
+            var manada = mundo.getManadasJugador().stream()
+                    .filter(actual -> actual.getDueno() == bandera.getDueno())
+                    .findFirst()
+                    .orElseThrow();
+            Ruta ruta = Ruta.crear(mundo.getMapa(), null,
+                    manada.getVivos().firstElement().getPosicion(), bandera.getPos());
+            assertTrue(ruta.esValida());
+            assertTrue(ruta.getPuntos().get(ruta.getPuntos().size() - 1)
+                    .distancia(bandera.getPos()) < 0.000001);
+        }
+    }
+
+    @Test
+    void flagPathsDoNotInterruptMovementBetweenZones() {
+        Mapa mapa = MainMapa.crearMapa(new Random(25));
+        MundoJuego mundo = new MundoJuego();
+        mundo.setMapa(mapa);
+        agregarManada(mundo, Especie.JAGUAR, 1);
+        agregarManada(mundo, Especie.DANTA, 2);
+        new InicializadorMundo(new Random(26)).colocarBanderas(mundo);
+
+        Punto inicio = mapa.puntoAleatorioEnZona(1, new Random(27));
+        Punto destino = mapa.puntoAleatorioEnZona(12, new Random(28));
+        Animal animal = mundo.getManadasJugador().get(0).getVivos().firstElement();
+        animal.setUbicacion(animal.getId(), inicio, 1);
+        Ruta ruta = Ruta.crear(mapa, null, inicio, destino);
+        assertTrue(ruta.esValida());
+        animal.setRuta(ruta);
+        Set<Integer> zonasVisitadas = new HashSet<>();
+        ReglaMovimiento reglaMovimiento = new ReglaMovimiento();
+        for (int tick = 0; tick < 10_000 && !ruta.terminada(); tick++) {
+            reglaMovimiento.aplicar(mundo, tick * 200L, 0.2);
+            zonasVisitadas.add(animal.getIdZona());
+        }
+
+        assertTrue(ruta.terminada());
+        assertEquals(12, animal.getIdZona());
+        assertTrue(zonasVisitadas.size() > 1);
     }
 
     private static MundoJuego mundoConMapa() {

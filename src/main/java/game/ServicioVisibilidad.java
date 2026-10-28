@@ -66,7 +66,7 @@ public class ServicioVisibilidad {
             }
         }
         for (Bandera bandera : mundo.getBanderas()) {
-            if (bandera != null && bandera.getDueno() != jugador && bandera.getIdZona() == zona) {
+            if (bandera != null && bandera.getIdZona() == zona) {
                 estado.bandera = bandera.getPos();
                 estado.colorBandera = bandera.getColor();
                 break;
