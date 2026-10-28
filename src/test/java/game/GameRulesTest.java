@@ -1,6 +1,8 @@
 package game;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -22,6 +24,65 @@ import red.EstadoVisible;
 import org.junit.jupiter.api.Test;
 
 class GameRulesTest {
+    @Test
+    void botsPatrolAlongPathsWithinTheirStartingZone() {
+        MundoJuego mundo = new MundoJuego();
+        var mapa = MainMapa.crearMapa();
+        mundo.setMapa(mapa);
+        ManadaBot bots = new ManadaBot(Especie.DANTA, 1);
+        bots.crearMiembros(mapa.getZona(1), new Random(11), mapa);
+        mundo.getManadasBot().add(bots);
+        Animal bot = bots.getVivos().firstElement();
+        Punto inicio = new Punto(bot.getPosicion().getX(), bot.getPosicion().getY());
+
+        ReglaMovimiento regla = new ReglaMovimiento(new Random(12));
+        boolean seMovio = false;
+        for (int tick = 1; tick <= 400; tick++) {
+            regla.aplicar(mundo, tick * 50L, 0.05);
+            if (bot.getPosicion().distancia(inicio) > 0.0) {
+                seMovio = true;
+            }
+            assertTrue(mapa.getZona(1).contiene(bot.getPosicion()));
+        }
+
+        assertTrue(seMovio);
+        assertEquals(1, bot.getIdZona());
+        assertTrue(bot.getRuta() != null);
+    }
+
+    @Test
+    void botsOutsideTheMapDoNotStopMovementRule() {
+        MundoJuego mundo = new MundoJuego();
+        var mapa = MainMapa.crearMapa();
+        mundo.setMapa(mapa);
+        ManadaBot bots = new ManadaBot(Especie.DANTA, 1);
+        bots.crearMiembros(mapa.getZona(1), new Random(11), mapa);
+        mundo.getManadasBot().add(bots);
+        Animal bot = bots.getVivos().firstElement();
+        bot.setUbicacion(bot.getId(), new Punto(2_000, 2_000), 0);
+
+        assertDoesNotThrow(() -> new ReglaMovimiento(new Random(12)).aplicar(mundo, 50L, 0.05));
+        assertNull(bot.getRuta());
+        assertEquals(new Punto(2_000, 2_000), bot.getPosicion());
+    }
+
+    @Test
+    void playerAnimalsDoNotPatrolAutomatically() {
+        MundoJuego mundo = new MundoJuego();
+        var mapa = MainMapa.crearMapa();
+        mundo.setMapa(mapa);
+        ManadaJugador manada = new ManadaJugador(Especie.JAGUAR, new Jugador());
+        manada.crearMiembros(mapa.getZona(1), new Random(11), mapa);
+        mundo.getManadasJugador().add(manada);
+        Animal animal = manada.getVivos().firstElement();
+        Punto inicio = new Punto(animal.getPosicion().getX(), animal.getPosicion().getY());
+
+        new ReglaMovimiento(new Random(12)).aplicar(mundo, 50L, 0.05);
+
+        assertEquals(inicio, animal.getPosicion());
+        assertNull(animal.getRuta());
+    }
+
     @Test
     void selectedPlayerAnimalsAttackOnlyAtCooldownIntervals() {
         MundoJuego mundo = new MundoJuego();
