@@ -30,6 +30,24 @@ import org.junit.jupiter.api.Test;
 
 class GameRulesTest {
     @Test
+    void playerAndBotAnimalsMoveAtTheSharedReducedSpeed() {
+        ManadaJugador jugadores = new ManadaJugador(Especie.JAGUAR, new Jugador());
+        ManadaBot bots = new ManadaBot(Especie.DANTA, 1);
+        jugadores.crearMiembros(zona(1), new Random(11));
+        bots.crearMiembros(zona(1), new Random(12));
+        List<Animal> animales = List.of(
+                jugadores.getVivos().firstElement(),
+                bots.getVivos().firstElement());
+
+        for (Animal animal : animales) {
+            ubicar(animal, animal.getId(), 10, 50);
+            animal.setRuta(new Ruta(List.of(new Punto(100, 50))));
+            animal.avanzar(1.0);
+            assertEquals(45.0, animal.getPosicion().distancia(new Punto(10, 50)), 0.000001);
+        }
+    }
+
+    @Test
     void botsPatrolAlongPathsWithinTheirStartingZone() {
         MundoJuego mundo = new MundoJuego();
         var mapa = MainMapa.crearMapa();
@@ -157,12 +175,16 @@ class GameRulesTest {
 
         new ReglaMovimiento(new Random(23)).aplicar(mundo, 1_100L, 0.05);
         new ReglaAtaqueBot().aplicar(mundo, 1_100L, 0.05);
+        assertTrue(!bot.isAtacando());
+
+        new ReglaMovimiento(new Random(23)).aplicar(mundo, 1_150L, 0.05);
+        new ReglaAtaqueBot().aplicar(mundo, 1_150L, 0.05);
         assertTrue(bot.isAtacando());
         assertNull(bot.getRuta());
         assertEquals(19, objetivo.getEnergia());
 
         Punto posicionDuranteAtaque = new Punto(bot.getPosicion().getX(), bot.getPosicion().getY());
-        new ReglaMovimiento(new Random(23)).aplicar(mundo, 1_150L, 0.05);
+        new ReglaMovimiento(new Random(23)).aplicar(mundo, 1_200L, 0.05);
         assertEquals(posicionDuranteAtaque, bot.getPosicion());
 
         EstadoVisible estado = new ServicioVisibilidad().crearSnapshot(mundo, jugador);
@@ -174,7 +196,7 @@ class GameRulesTest {
         assertEquals(objetivo.getPosicion().getY(), vistaBot.objetivoY);
 
         ubicar(objetivo, objetivo.getId(), 90, 50);
-        new ReglaAtaqueBot().aplicar(mundo, 1_200L, 0.05);
+        new ReglaAtaqueBot().aplicar(mundo, 1_250L, 0.05);
         assertTrue(!bot.isAtacando());
         assertSame(objetivo, bot.getObjetivo());
         assertTrue(bot.getRuta() != null);
@@ -206,7 +228,7 @@ class GameRulesTest {
         regla.aplicar(mundo, 1_000L, 0.05);
         assertTrue(atacante.getRuta() != null);
         assertTrue(!atacante.isAtacando());
-        atacante.avanzar(0.75);
+        atacante.avanzar(1.3);
         regla.aplicar(mundo, 1_500L, 0.05);
 
         assertTrue(atacante.isAtacando());
@@ -282,11 +304,48 @@ class GameRulesTest {
     }
 
     @Test
+    void survivingPlayerWinsWhenOpponentLosesAllAnimals() {
+        MundoJuego mundo = new MundoJuego();
+        Jugador sobreviviente = new Jugador();
+        Jugador eliminado = new Jugador();
+        ManadaJugador manadaSobreviviente = new ManadaJugador(Especie.JAGUAR, sobreviviente);
+        ManadaJugador manadaEliminada = new ManadaJugador(Especie.DANTA, eliminado);
+        manadaSobreviviente.crearMiembros(zona(1), new Random(31));
+        manadaEliminada.crearMiembros(zona(2), new Random(32));
+        mundo.getManadasJugador().add(manadaSobreviviente);
+        mundo.getManadasJugador().add(manadaEliminada);
+        for (Animal animal : manadaEliminada.getVivos()) {
+            animal.recibirDanio(Integer.MAX_VALUE);
+        }
+
+        new ReglaVictoria().aplicar(mundo, 1_000L, 0.05);
+
+        assertTrue(mundo.hayGanador());
+        assertSame(sobreviviente, mundo.getGanador());
+    }
+
+    @Test
+    void gameContinuesWhileBothPlayersStillHaveLivingAnimals() {
+        MundoJuego mundo = new MundoJuego();
+        ManadaJugador primera = new ManadaJugador(Especie.JAGUAR, new Jugador());
+        ManadaJugador segunda = new ManadaJugador(Especie.DANTA, new Jugador());
+        primera.crearMiembros(zona(1), new Random(33));
+        segunda.crearMiembros(zona(2), new Random(34));
+        mundo.getManadasJugador().add(primera);
+        mundo.getManadasJugador().add(segunda);
+        primera.getVivos().firstElement().recibirDanio(Integer.MAX_VALUE);
+
+        new ReglaVictoria().aplicar(mundo, 1_000L, 0.05);
+
+        assertTrue(!mundo.hayGanador());
+    }
+
+    @Test
     void generatedMapContainsTwelveConnectedZones() {
         var mapa = MainMapa.crearMapa();
 
         assertEquals(12, mapa.getZonas().size());
-        assertEquals(17, mapa.getCaminos().size());
+        assertEquals(29, mapa.getCaminos().size());
         assertEquals(6, new BuscadorBFS().buscarRuta(mapa, 1, 12).size());
     }
 
@@ -346,7 +405,7 @@ class GameRulesTest {
     }
 
     @Test
-    void selectedZoneWithoutOwnAnimalsReturnsNoContentsForFogView() {
+    void selectedZoneWithoutOwnAnimalsReturnsOwnAnimalsButNoFogContents() {
         MundoJuego mundo = new MundoJuego();
         Mapa mapa = new Mapa();
         mapa.agregarZona(zona(1));
@@ -368,7 +427,8 @@ class GameRulesTest {
         assertEquals(2, snapshot.idZona);
         assertEquals(List.of(1), snapshot.zonasVisibles);
         assertEquals(Map.of(1, 10), snapshot.animalesPorZona);
-        assertTrue(snapshot.animales.isEmpty());
+        assertEquals(10, snapshot.animales.size());
+        assertTrue(snapshot.animales.stream().allMatch(animal -> animal.esMio));
         assertTrue(snapshot.tazas.isEmpty());
         assertNull(snapshot.bandera);
     }

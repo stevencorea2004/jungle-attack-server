@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -131,7 +132,8 @@ class LobbyCommandsTest {
         anfitrion.enviar(TipoMensaje.VIEW_ZONE, explorar);
         EstadoVisible estadoExplorado = leerEstadoZona(anfitrion, zonaEnNiebla);
         assertEquals(zonaEnNiebla, estadoExplorado.idZona);
-        assertTrue(estadoExplorado.animales.isEmpty());
+        assertEquals(10, estadoExplorado.animales.size());
+        assertTrue(estadoExplorado.animales.stream().allMatch(animal -> animal.esMio));
         assertTrue(!estadoExplorado.zonasVisibles.contains(zonaEnNiebla));
 
         AnimalJugador atacante = (AnimalJugador) partida.getJugadores().get(0)
@@ -154,6 +156,10 @@ class LobbyCommandsTest {
         anfitrion.enviar(TipoMensaje.ATTACK, atacar);
         Thread.sleep(100L);
         assertSame(objetivo, atacante.getObjetivo());
+
+        objetivo.recibirDanio(objetivo.getEnergia());
+        anfitrion.enviar(TipoMensaje.ATTACK, atacar);
+        assertFalse(anfitrion.leerErrorDisponible(300));
     }
 
     @Test
@@ -362,6 +368,26 @@ class LobbyCommandsTest {
                 mensaje = leer();
             } while (mensaje.getTipo() != tipoEsperado);
             return mensaje;
+        }
+
+        private boolean leerErrorDisponible(int timeoutMs) throws IOException {
+            int timeoutAnterior = socket.getSoTimeout();
+            socket.setSoTimeout(timeoutMs);
+            try {
+                while (true) {
+                    try {
+                        String linea = lector.readLine();
+                        assertNotNull(linea, "El servidor cerró la conexión sin respuesta");
+                        if (CodificadorJson.getInstancia().decodificar(linea).getTipo() == TipoMensaje.ERROR) {
+                            return true;
+                        }
+                    } catch (SocketTimeoutException e) {
+                        return false;
+                    }
+                }
+            } finally {
+                socket.setSoTimeout(timeoutAnterior);
+            }
         }
 
         @Override

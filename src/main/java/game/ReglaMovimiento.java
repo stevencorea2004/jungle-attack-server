@@ -50,6 +50,14 @@ public class ReglaMovimiento implements IReglaJuego {
                 if (animal != null) {
                     if (animal instanceof AnimalBot) {
                         AnimalBot bot = (AnimalBot) animal;
+                        ManadaBot manadaBot = (ManadaBot) bot.getManada();
+                        Zona zonaInicial = mundo.getMapa() == null || manadaBot == null
+                                ? null : mundo.getMapa().getZona(manadaBot.getIdZonaInicial());
+                        if (zonaInicial == null || !zonaInicial.contiene(bot.getPosicion())) {
+                            bot.setRuta(null);
+                            bot.limpiarObjetivo();
+                            continue;
+                        }
                         if (bot.isAtacando()) {
                             bot.setRuta(null);
                             continue;
@@ -80,7 +88,11 @@ public class ReglaMovimiento implements IReglaJuego {
         if (mapa == null) {
             return false;
         }
-        Zona zona = mapa.getZona(animal.getIdZona());
+        int idZona = animal.getIdZona();
+        if (animal instanceof AnimalBot && animal.getManada() instanceof ManadaBot) {
+            idZona = ((ManadaBot) animal.getManada()).getIdZonaInicial();
+        }
+        Zona zona = mapa.getZona(idZona);
         if (zona == null || !zona.contiene(animal.getPosicion())) {
             return false;
         }
@@ -89,7 +101,9 @@ public class ReglaMovimiento implements IReglaJuego {
             return true;
         }
         Punto destino = mapa.puntoAleatorioEnZona(zona.getId(), random);
-        Ruta patrulla = Ruta.crear(mapa, null, animal.getPosicion(), destino);
+        Ruta patrulla = animal instanceof AnimalBot
+                ? Ruta.crearEnZona(mapa, idZona, animal.getPosicion(), destino)
+                : Ruta.crear(mapa, null, animal.getPosicion(), destino);
         if (!patrulla.esValida()) {
             throw new IllegalStateException("No se pudo crear una ruta de patrulla para el bot");
         }

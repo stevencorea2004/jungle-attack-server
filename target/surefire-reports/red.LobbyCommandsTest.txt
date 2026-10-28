@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: red.LobbyCommandsTest
 -------------------------------------------------------------------------------
-Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 9.062 s -- in red.LobbyCommandsTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 28.68 s -- in red.LobbyCommandsTest

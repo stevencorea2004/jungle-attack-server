@@ -30,7 +30,9 @@ public abstract class Animal extends EntidadJuego {
     }
 
     public boolean atacar(Animal objetivo, long ahora) {
-        if (objetivo == null || !objetivo.estaVivo() || !puedeAtacar(ahora)) {
+        if (objetivo == null || !objetivo.estaVivo()
+                || (manada != null && manada == objetivo.getManada())
+                || !puedeAtacar(ahora)) {
             return false;
         }
         int danio = this.manada != null ? this.manada.danio : 0;

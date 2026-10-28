@@ -18,7 +18,7 @@ public final class Constantes {
     public static final int BONO_DANIO_TAZA = 1;
     public static final double RADIO_TAZA = 18.0;
     public static final double RADIO_BANDERA = 22.0;
-    public static final double VELOCIDAD_ANIMAL = 90.0;
+    public static final double VELOCIDAD_ANIMAL = 45.0;
     public static final long TICK_MS = 50L;
     public static final int LARGO_CODIGO = 4;
     public static final String CARACTERES_CODIGO = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

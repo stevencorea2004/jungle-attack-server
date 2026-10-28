@@ -1,6 +1,8 @@
 package game;
 
+import mapa.Mapa;
 import mapa.Ruta;
+import mapa.Zona;
 import model.Animal;
 import model.AnimalBot;
 import model.AnimalJugador;
@@ -18,6 +20,11 @@ public class ReglaAtaqueBot implements IReglaJuego {
             if (manadaBot == null || manadaBot.estaEliminada()) {
                 continue;
             }
+            Mapa mapa = mundo.getMapa();
+            Zona zonaInicial = mapa == null ? null : mapa.getZona(manadaBot.getIdZonaInicial());
+            if (zonaInicial == null) {
+                continue;
+            }
             for (Animal bot : manadaBot.getVivos()) {
                 if (!(bot instanceof AnimalBot) || !bot.estaVivo()) {
                     continue;
@@ -31,6 +38,9 @@ public class ReglaAtaqueBot implements IReglaJuego {
                     }
                     for (Animal animalJugador : manadaJugador.getVivos()) {
                         if (!(animalJugador instanceof AnimalJugador) || !animalJugador.estaVivo()) {
+                            continue;
+                        }
+                        if (!zonaInicial.contiene(animalJugador.getPosicion())) {
                             continue;
                         }
                         double distancia = bot.getPosicion().distancia(animalJugador.getPosicion());
@@ -53,7 +63,7 @@ public class ReglaAtaqueBot implements IReglaJuego {
                     animalBot.setAtacando(false);
                     Ruta ruta = animalBot.getRuta();
                     if (ruta == null || ruta.terminada()) {
-                        ruta = Ruta.crear(mundo.getMapa(), null,
+                        ruta = Ruta.crearEnZona(mapa, manadaBot.getIdZonaInicial(),
                                 animalBot.getPosicion(), objetivo.getPosicion());
                         if (!ruta.esValida()) {
                             animalBot.limpiarObjetivo();

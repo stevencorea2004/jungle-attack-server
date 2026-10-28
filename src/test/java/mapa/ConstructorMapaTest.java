@@ -63,10 +63,15 @@ class ConstructorMapaTest {
         Mapa primero = MainMapa.crearMapa(new Random(1));
         Mapa segundo = MainMapa.crearMapa(new Random(2));
 
-        assertEquals(17, primero.getCaminos().size());
+        assertEquals(29, primero.getCaminos().size());
         assertNotEquals(primero.getCaminos().get(0).getPuntos(),
                 segundo.getCaminos().get(0).getPuntos());
         for (Camino camino : primero.getCaminos()) {
+            if (camino.getIdZonaA() == camino.getIdZonaB()) {
+                assertTrue(camino.getLargo() > 0.0,
+                        "Cada región debe tener un ramal que salga del camino principal");
+                continue;
+            }
             boolean tocaBorde = false;
             for (Punto punto : camino.getPuntos()) {
                 if (punto.getX() % 320.0 == 0.0 || punto.getY() % 240.0 == 0.0) {
@@ -75,6 +80,13 @@ class ConstructorMapaTest {
                 }
             }
             assertTrue(tocaBorde, "Cada camino entre regiones debe alcanzar su borde compartido");
+        }
+        for (int idZona = 1; idZona <= 12; idZona++) {
+            int zona = idZona;
+            int caminosLocales = (int) primero.getCaminos().stream()
+                    .filter(camino -> camino.getIdZonaA() == zona && camino.getIdZonaB() == zona)
+                    .count();
+            assertEquals(1, caminosLocales, "Cada región debe tener un solo ramal");
         }
     }
 

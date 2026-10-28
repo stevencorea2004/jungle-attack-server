@@ -51,7 +51,28 @@ public final class MainMapa {
                 }
             }
         }
-        return constructor.construir();
+        Mapa mapa = constructor.construir();
+        agregarProtuberancias(mapa, random);
+        return mapa;
+    }
+
+    private static void agregarProtuberancias(Mapa mapa, Random random) {
+        for (Zona zona : mapa.getZonas()) {
+            Punto destino = null;
+            Punto conexion = null;
+            double distanciaMaxima = -1.0;
+            for (int intento = 0; intento < 8; intento++) {
+                Punto candidato = zona.puntoAleatorio(random);
+                Punto puntoConexion = mapa.puntoMasCercanoEnZona(zona.getId(), candidato);
+                double distancia = candidato.distancia(puntoConexion);
+                if (distancia > distanciaMaxima) {
+                    destino = candidato;
+                    conexion = puntoConexion;
+                    distanciaMaxima = distancia;
+                }
+            }
+            mapa.agregarCaminoLocal(zona.getId(), List.of(conexion, destino));
+        }
     }
 
     private static void conectarHorizontal(ConstructorMapa constructor, int origen, int destino,

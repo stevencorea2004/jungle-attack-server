@@ -6,7 +6,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import mapa.Mapa;
 import mapa.Ruta;
+import mapa.Zona;
 import model.Animal;
 import model.AnimalJugador;
 import model.Punto;
@@ -31,7 +33,9 @@ public class ComandoMover implements IComando {
         }
 
         Punto destino = new Punto(datos.destinoX, datos.destinoY);
-        if (partida.getMundo().getMapa().zonaEn(destino) == null) {
+        Mapa mapa = partida.getMundo().getMapa();
+        Zona zonaDestino = mapa.zonaEn(destino);
+        if (zonaDestino == null) {
             throw new IllegalArgumentException("El destino debe estar dentro del mapa");
         }
         Set<Integer> idsUnicos = new HashSet<>();
@@ -51,7 +55,7 @@ public class ComandoMover implements IComando {
             if (animales.size() > 1) {
                 double dispersion = ThreadLocalRandom.current()
                         .nextDouble(DISPERSION_MINIMA, DISPERSION_MAXIMA);
-                ruta = recortarFinalRuta(ruta, dispersion);
+                ruta = recortarFinalRuta(ruta, dispersion, mapa, zonaDestino.getId());
             }
             rutas.add(ruta);
         }
@@ -89,6 +93,18 @@ public class ComandoMover implements IComando {
                 return new Ruta(rutaDispersa);
             }
             restante -= largoSegmento;
+        }
+        return ruta;
+    }
+
+    static Ruta recortarFinalRuta(Ruta ruta, double distancia, Mapa mapa, int idZonaDestino) {
+        Ruta rutaDispersa = recortarFinalRuta(ruta, distancia);
+        List<Punto> puntos = rutaDispersa.getPuntos();
+        if (!puntos.isEmpty()) {
+            Zona zonaFinal = mapa.zonaEn(puntos.get(puntos.size() - 1));
+            if (zonaFinal != null && zonaFinal.getId() == idZonaDestino) {
+                return rutaDispersa;
+            }
         }
         return ruta;
     }

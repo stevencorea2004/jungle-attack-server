@@ -10,6 +10,10 @@ public class ManadaBot extends Manada {
         this.idZonaInicial = idZonaInicial;
     }
 
+    public int getIdZonaInicial() {
+        return idZonaInicial;
+    }
+
     @Override
     public Animal crearMiembro(int id, Punto pos) {
         AnimalBot animal = new AnimalBot();

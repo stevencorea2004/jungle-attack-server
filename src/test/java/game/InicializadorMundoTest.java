@@ -20,6 +20,7 @@ import model.Especie;
 import model.ManadaJugador;
 import model.Punto;
 import org.junit.jupiter.api.Test;
+import red.EstadoVisible;
 import util.Constantes;
 
 class InicializadorMundoTest {

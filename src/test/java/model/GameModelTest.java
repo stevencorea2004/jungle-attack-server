@@ -41,6 +41,20 @@ class GameModelTest {
     }
 
     @Test
+    void animalsCannotDamageMembersOfTheirOwnPack() {
+        ManadaJugador manada = new ManadaJugador(Especie.JAGUAR, null);
+        AnimalJugador atacante = (AnimalJugador) manada.crearMiembro(1, new Punto(0, 0));
+        AnimalJugador aliado = (AnimalJugador) manada.crearMiembro(2, new Punto(0, 0));
+        manada.miembros.add(atacante);
+        manada.miembros.add(aliado);
+        int energiaInicial = aliado.getEnergia();
+
+        assertFalse(atacante.atacar(aliado, 10_000L));
+        assertEquals(energiaInicial, aliado.getEnergia());
+        assertEquals(null, aliado.getUltimoAtacante());
+    }
+
+    @Test
     void coffeeCupIncreasesPackDamageOnlyOnce() {
         ManadaJugador manada = new ManadaJugador(Especie.PIZOTE, null);
         AnimalJugador animal = (AnimalJugador) manada.crearMiembro(1, new Punto(0, 0));

@@ -24,8 +24,14 @@ public class ComandoAtacar implements IComando {
             throw new IllegalArgumentException("Se requieren animales para atacar");
         }
         Animal objetivo = partida.getMundo().buscarAnimal(datos.idObjetivo);
-        if (objetivo == null || objetivo.getManada() == jugador.getManada()) {
+        if (objetivo == null) {
+            return;
+        }
+        if (objetivo.getManada() == jugador.getManada()) {
             throw new IllegalArgumentException("El objetivo no existe o pertenece al jugador");
+        }
+        if (!objetivo.estaVivo()) {
+            return;
         }
 
         Set<Integer> idsUnicos = new HashSet<>();

@@ -51,15 +51,18 @@ public class ServicioVisibilidad {
         }
         jugador.setZonaVista(zona);
         estado.idZona = zona;
+        agregarAnimales(estado.animales, jugador.getManada(), jugador, zona, true);
         if (!visibles.contains(zona)) {
             return estado;
         }
 
         for (ManadaJugador manada : mundo.getManadasJugador()) {
-            agregarAnimales(estado.animales, manada, jugador, zona);
+            if (manada != jugador.getManada()) {
+                agregarAnimales(estado.animales, manada, jugador, zona, false);
+            }
         }
         for (ManadaBot manada : mundo.getManadasBot()) {
-            agregarAnimales(estado.animales, manada, jugador, zona);
+            agregarAnimales(estado.animales, manada, jugador, zona, false);
         }
         for (TazaCafe taza : mundo.getTazas()) {
             if (taza != null && !taza.isConsumida() && taza.getIdZona() == zona) {
@@ -77,12 +80,12 @@ public class ServicioVisibilidad {
     }
 
     private static void agregarAnimales(Vector<VistaAnimal> destino, model.Manada manada,
-            Jugador jugador, int zona) {
+            Jugador jugador, int zona, boolean incluirTodasLasZonas) {
         if (manada == null) {
             return;
         }
         for (Animal animal : manada.getVivos()) {
-            if (animal.getIdZona() != zona) {
+            if (!incluirTodasLasZonas && animal.getIdZona() != zona) {
                 continue;
             }
             VistaAnimal vista = new VistaAnimal();

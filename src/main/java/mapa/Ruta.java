@@ -18,17 +18,29 @@ public class Ruta {
     }
 
     public static Ruta crear(Mapa mapa, List<Zona> zonas, Punto inicio, Punto destino) {
+        return crear(mapa, zonas, inicio, destino, null);
+    }
+
+    public static Ruta crearEnZona(Mapa mapa, int idZona, Punto inicio, Punto destino) {
+        if (mapa == null || mapa.getZona(idZona) == null) {
+            return new Ruta(new ArrayList<>());
+        }
+        return crear(mapa, null, inicio, destino, mapa.getZona(idZona));
+    }
+
+    private static Ruta crear(Mapa mapa, List<Zona> zonas, Punto inicio, Punto destino,
+            Zona zonaPermitida) {
         if (mapa == null || inicio == null || destino == null) {
             return new Ruta(new ArrayList<>());
         }
 
-        RedVial red = construirRed(mapa);
+        RedVial red = construirRed(mapa, zonaPermitida);
         if (red.segmentos.isEmpty()) {
             return new Ruta(new ArrayList<>());
         }
 
-        Zona zonaInicio = mapa.zonaEn(inicio);
-        Zona zonaDestino = mapa.zonaEn(destino);
+        Zona zonaInicio = zonaPermitida == null ? mapa.zonaEn(inicio) : zonaPermitida;
+        Zona zonaDestino = zonaPermitida == null ? mapa.zonaEn(destino) : zonaPermitida;
         Proyeccion origen = proyectar(red.segmentos, zonaInicio, inicio);
         Proyeccion fin = proyectar(red.segmentos, zonaDestino, destino);
         if (origen == null || fin == null) {
@@ -96,13 +108,27 @@ public class Ruta {
         return new Ruta(puntosRuta);
     }
 
-    private static RedVial construirRed(Mapa mapa) {
+    private static RedVial construirRed(Mapa mapa, Zona zonaPermitida) {
         RedVial red = new RedVial();
         for (Camino camino : mapa.getCaminos()) {
             List<Punto> puntos = camino.getPuntos();
             for (int i = 1; i < puntos.size(); i++) {
                 Punto inicio = puntos.get(i - 1);
                 Punto fin = puntos.get(i);
+                if (zonaPermitida != null) {
+                    double[] intervalo = Camino.intervaloEnZona(zonaPermitida, inicio, fin);
+                    if (intervalo == null || intervalo[1] - intervalo[0] <= TOLERANCIA) {
+                        continue;
+                    }
+                    if (intervalo[0] > 0.0 || intervalo[1] < 1.0) {
+                        double dx = fin.getX() - inicio.getX();
+                        double dy = fin.getY() - inicio.getY();
+                        fin = new Punto(inicio.getX() + intervalo[1] * dx,
+                                inicio.getY() + intervalo[1] * dy);
+                        inicio = new Punto(inicio.getX() + intervalo[0] * dx,
+                                inicio.getY() + intervalo[0] * dy);
+                    }
+                }
                 if (inicio.distancia(fin) <= TOLERANCIA) {
                     continue;
                 }

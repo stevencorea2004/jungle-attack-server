@@ -1,10 +1,10 @@
 # Jungle Attack Server 
 
-Repo jungle-attack-server. El servidor es la autoridad: calcula movimiento por rutas, combate, tazas, bonos y victoria, y a cada cliente le manda solo los contenidos de la zona que está viendo. Al iniciar ambos jugadores, construye un mapa conectado de 12 zonas con caminos aleatorios que cruzan los bordes compartidos; cuando un animal atraviesa una salida, la vista sigue la nueva región. Las especies elegidas por jugadores son exclusivas y LEAVE\_MATCH permite abandonar la partida. La spec del cliente está en su propio doc.
+Repo jungle-attack-server. El servidor es la autoridad: calcula movimiento por rutas, combate, tazas, bonos y victoria, y a cada cliente le manda solo los contenidos de la zona que está viendo. Al iniciar ambos jugadores, construye un mapa conectado de 12 zonas con caminos aleatorios que cruzan los bordes compartidos; los animales de jugador pueden cruzar entre regiones, pero los bots patrullan y combaten únicamente dentro de su zona inicial. Las especies elegidas por jugadores son exclusivas y LEAVE\_MATCH permite abandonar la partida. La spec del cliente está en su propio doc.
 
 ## Estructura Java
 
-Requiere JDK 25 (LTS) y Maven 3.9 o posterior. El proyecto está organizado en los paquetes `util`, `model`, `mapa`, `game`, `partida` y `red`. El servidor escucha en el puerto 5000; las velocidades y radios de juego se definen en `util.Constantes`. Usa Maven y Gson; se compila con `mvn compile` y se ejecutan las pruebas JUnit 5 con `mvn test`, incluidas pruebas de ida y vuelta JSON para payloads anidados y una integración TCP que completa una partida con dos clientes.
+Requiere JDK 25 (LTS) y Maven 3.9 o posterior. El proyecto está organizado en los paquetes `util`, `model`, `mapa`, `game`, `partida` y `red`. El servidor escucha en el puerto 5000; las velocidades y radios de juego se definen en `util.Constantes`. Todos los animales se mueven a 45 unidades por segundo. Usa Maven y Gson; se compila con `mvn compile` y se ejecutan las pruebas JUnit 5 con `mvn test`, incluidas pruebas de ida y vuelta JSON para payloads anidados y una integración TCP que completa una partida con dos clientes.
 
 ## Patrón Observer y Utilidades (util)
 
@@ -219,7 +219,7 @@ Métodos:
 
 ### Camino
 
-Sendero caminable que une dos zonas.
+Sendero caminable entre zonas; también puede ser un ramal local dentro de una zona.
 
 Atributos:
 
@@ -232,6 +232,8 @@ Métodos:
 
 - conecta(int zonaA, int zonaB): boolean
 - puntoAleatorio(Random random): Punto — Usado para poner las tazas.
+
+Un camino local usa el mismo id de zona en ambos extremos y conecta la red vial con la bandera sin crear una conexión entre zonas.
 
 ### Mapa
 
@@ -248,6 +250,18 @@ Métodos:
 - zonaEn(Punto p): Zona
 - getVecinos(int idZona): Vector
 - getCamino(int zonaA, int zonaB): Camino
+- agregarCaminoLocal(int idZona, List<Punto> puntos): void — Agrega un ramal desde un punto existente de la red hasta la bandera.
+- puntoMasCercanoEnZona(int idZona, Punto objetivo): Punto — Encuentra la conexión más cercana entre la red vial y la bandera.
+
+### Helpers de ruta y geometría
+
+Durante el cálculo de rutas, el servidor crea clases auxiliares internas para proyectar puntos sobre tramos y resolver caminos mínimos.
+
+- RedVial: grafo de nodos, índices y aristas ponderadas para Dijkstra sobre la red de caminos.
+- Segmento: segmento de camino con dos nodos y su longitud para conectar puntos transitables.
+- Proyeccion: punto de proyección del destino sobre un segmento y el segmento asociado.
+- Arista: conexión dirigida entre nodos con su peso (distancia).
+- SegmentoZona: porción de un segmento localizada dentro de una zona concreta, usado para muestrear puntos en la zona.
 
 ### ConstructorMapa — Patrón Builder
 
@@ -377,8 +391,8 @@ Métodos:
 
 ### Reglas (Implementan IReglaJuego)
 
-- ReglaMovimiento: Avanza cada animal por su ruta a velocidad constante.
-- ReglaAtaqueBot: Cada bot dentro de RADIO\_ENCUENTRO ataca automáticamente al animal del jugador.
+- ReglaMovimiento: Avanza cada animal por su ruta a velocidad constante; limita el patrullaje bot a su zona inicial.
+- ReglaAtaqueBot: Los bots detectan, persiguen y atacan automáticamente solo a animales de jugador dentro de su zona inicial; no salen de ella.
 - ReglaAtaqueJugador: Cada AnimalJugador con objetivo lo ataca si está en rango y venció el cooldown; si el objetivo muere o sale del rango, se detiene.
 - ReglaTazaCafe: La primera taza que toca un animal se consume.
 - ReglaBonoEnergia: Cada 2 bots eliminados, +1 de energía a todos los vivos de la manada, máximo 20.
@@ -564,9 +578,11 @@ Métodos:
 - ComandoCrearPartida: Crea la partida y responde MATCH\_CREATED con el código.
 - ComandoUnirse: Une al jugador o responde ERROR (código inválido o partida llena).
 - ComandoElegirAnimal: Elige la especie o responde ERROR si ya está tomada.
+- ComandoDeseleccionarAnimal: Cancela la especie previamente elegida y actualiza la lista disponible para reiniciar la selección.
 - ComandoMover: Calcula la ruta de los animales seleccionados.
 - ComandoAtacar: Asigna el objetivo a los animales seleccionados.
 - ComandoVerZona: Cambia la zona que el jugador está viendo si tiene animales ahí.
+- ComandoSalirPartida: Registra la salida del jugador y concede la victoria al rival cuando la partida sigue activa.
 
 ### Estado implementado del lobby
 
@@ -768,6 +784,7 @@ classDiagram
         class ManadaBot {
         -idZonaInicial: int
         +crearMiembro(id: int, pos: Punto): Animal
+        +getIdZonaInicial(): int
         }
         class TazaCafe {
         -consumida: boolean
@@ -802,6 +819,8 @@ classDiagram
         class Mapa {
         -zonas: Vector
         -caminos: Vector
+        +agregarCaminoLocal(idZona: int, puntos: List): void
+        +puntoMasCercanoEnZona(idZona: int, objetivo: Punto): Punto
         +getZona(id: int): Zona
         +zonaEn(p: Punto): Zona
         +getVecinos(idZona: int): Vector
@@ -827,12 +846,40 @@ classDiagram
         -puntos: Vector
         -indice: int
         +crear(mapa: Mapa, zonas: Vector, inicio: Punto, destino: Punto): Ruta$
+        +crearEnZona(mapa: Mapa, idZona: int, inicio: Punto, destino: Punto): Ruta$
         +getPuntos(): List
         +puntoActual(): Punto
         +mover(posicion: Punto, distanciaMaxima: double): Punto
         +avanzar(): void
         +esValida(): boolean
         +terminada(): boolean
+        }
+        class RedVial {
+        -nodos: List<Punto>
+        -indices: Map<Punto, Integer>
+        -aristas: List<List<Arista>>
+        -segmentos: List<Segmento>
+        }
+        class Segmento {
+        -inicio: Punto
+        -fin: Punto
+        -idInicio: int
+        -idFin: int
+        }
+        class Proyeccion {
+        -segmento: Segmento
+        -punto: Punto
+        }
+        class Arista {
+        -destino: int
+        -largo: double
+        }
+        class SegmentoZona {
+        -inicio: Punto
+        -fin: Punto
+        -inicioT: double
+        -finT: double
+        -largo: double
         }
         class MainMapa {
         +main(args: String[]): void$
@@ -1090,6 +1137,9 @@ classDiagram
         class ComandoElegirAnimal {
         +ejecutar(cliente: ManejadorCliente, mensaje: Mensaje): void
         }
+        class ComandoDeseleccionarAnimal {
+        +ejecutar(cliente: ManejadorCliente, mensaje: Mensaje): void
+        }
         class ComandoMover {
         +ejecutar(cliente: ManejadorCliente, mensaje: Mensaje): void
         }
@@ -1097,6 +1147,9 @@ classDiagram
         +ejecutar(cliente: ManejadorCliente, mensaje: Mensaje): void
         }
         class ComandoVerZona {
+        +ejecutar(cliente: ManejadorCliente, mensaje: Mensaje): void
+        }
+        class ComandoSalirPartida {
         +ejecutar(cliente: ManejadorCliente, mensaje: Mensaje): void
         }
         class EnrutadorMensajes {
@@ -1153,9 +1206,11 @@ classDiagram
     IComando <|.. ComandoCrearPartida
     IComando <|.. ComandoUnirse
     IComando <|.. ComandoElegirAnimal
+    IComando <|.. ComandoDeseleccionarAnimal
     IComando <|.. ComandoMover
     IComando <|.. ComandoAtacar
     IComando <|.. ComandoVerZona
+    IComando <|.. ComandoSalirPartida
     Runnable <|.. CicloJuego
     Runnable <|.. ManejadorCliente
     EntidadJuego *-- Punto : posicion
@@ -1166,11 +1221,13 @@ classDiagram
     Manada --> Especie
     Manada o-- Animal : miembros
     ManadaJugador --> Jugador : dueno
+    note for ManadaBot "Patrulla, persigue y combate solo dentro de idZonaInicial."
     TazaCafe ..> ManadaJugador : consumir
     Bandera --> Jugador : dueno
     Bandera ..> Animal : detectar
     Mapa o-- Zona
     Mapa o-- Camino
+    note for Camino "Camino local: zonaA = zonaB. Ramal de red vial a bandera; no crea vecinos entre zonas."
     Zona ..> Punto
     Camino ..> Punto
     ConstructorMapa ..> Zona
@@ -1180,6 +1237,11 @@ classDiagram
     BuscadorDijkstra ..> Mapa
     Ruta ..> Mapa
     Ruta o-- Punto
+    Ruta *-- RedVial
+    RedVial o-- Segmento
+    RedVial o-- Arista
+    Proyeccion --> Segmento
+    SegmentoZona --> Punto
     Jugador --> ManadaJugador
     Jugador --> Bandera
     Jugador --> Especie
@@ -1197,6 +1259,7 @@ classDiagram
     ServicioVisibilidad ..> MundoJuego
     ServicioVisibilidad ..> Jugador
     ServicioVisibilidad ..> EstadoVisible
+    note for ServicioVisibilidad "El snapshot de la zona visible incluye su bandera, propia o rival."
     Partida --> EstadoPartida
     Partida o-- Jugador
     Partida --> SelectorEspecies

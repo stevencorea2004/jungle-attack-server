@@ -1,15 +1,4 @@
-<<<<<<< HEAD
-=======
-util\UtilTest.class
 partida\LobbyPartidaTest.class
-red\LobbyCommandsTest$ClientePrueba.class
-mapa\ConstructorMapaTest.class
 red\CodificadorJsonTest.class
 mapa\RutaTest.class
-util\UtilTest$1.class
-model\GameModelTest.class
-game\InicializadorMundoTest.class
 game\JugadorTest.class
-red\LobbyCommandsTest.class
-red\MainRedTest.class
->>>>>>> 3af9b17ff94c0547fb9edaa7d4bf934d0bb08f4b
