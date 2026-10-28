@@ -2,7 +2,6 @@ util\UtilTest.class
 partida\LobbyPartidaTest.class
 red\LobbyCommandsTest$ClientePrueba.class
 mapa\ConstructorMapaTest.class
-game\GameRulesTest.class
 red\CodificadorJsonTest.class
 mapa\RutaTest.class
 util\UtilTest$1.class

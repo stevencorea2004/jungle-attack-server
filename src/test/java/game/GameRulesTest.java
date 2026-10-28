@@ -1,10 +1,7 @@
 package game;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-=======
->>>>>>> ac82e85ab902aafa0ca92da386445ebb9d957952
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -114,6 +111,73 @@ class GameRulesTest {
         assertEquals(8, objetivo.getEnergia());
         regla.aplicar(mundo, 2_000L, 0.05);
         assertEquals(6, objetivo.getEnergia());
+    }
+
+    @Test
+    void botsStopPatrollingAndShowTheAttackAnimationWhenAPlayerIsInRange() {
+        MundoJuego mundo = new MundoJuego();
+        Mapa mapa = new Mapa();
+        Zona zona = zona(1);
+        mapa.agregarZona(zona);
+        mapa.agregarCamino(new Camino(1, 1,
+                List.of(new Punto(0, 50), new Punto(100, 50))));
+        mundo.setMapa(mapa);
+
+        Jugador jugador = new Jugador();
+        ManadaJugador manadaJugador = new ManadaJugador(Especie.JAGUAR, jugador);
+        ManadaBot manadaBot = new ManadaBot(Especie.DANTA, 1);
+        manadaJugador.crearMiembros(zona, new Random(21));
+        manadaBot.crearMiembros(zona, new Random(22));
+        jugador.setManada(manadaJugador);
+        mundo.getManadasJugador().add(manadaJugador);
+        mundo.getManadasBot().add(manadaBot);
+
+        AnimalJugador objetivo = (AnimalJugador) manadaJugador.getVivos().firstElement();
+        AnimalBot bot = (AnimalBot) manadaBot.getVivos().firstElement();
+        for (Animal miembro : manadaBot.getVivos()) {
+            ubicar(miembro, miembro.getId(), 90, 50);
+        }
+        for (Animal miembro : manadaJugador.getVivos()) {
+            ubicar(miembro, miembro.getId(), 90, 50);
+        }
+        ubicar(objetivo, 1, 40, 50);
+        ubicar(bot, 11, 10, 50);
+
+        new ReglaAtaqueBot().aplicar(mundo, 1_000L, 0.05);
+
+        assertTrue(!bot.isAtacando());
+        assertSame(objetivo, bot.getObjetivo());
+        assertTrue(bot.getRuta() != null);
+
+        Punto posicionInicial = new Punto(bot.getPosicion().getX(), bot.getPosicion().getY());
+        new ReglaMovimiento(new Random(23)).aplicar(mundo, 1_050L, 0.05);
+        assertTrue(bot.getPosicion().distancia(posicionInicial) > 0.0);
+        new ReglaAtaqueBot().aplicar(mundo, 1_050L, 0.05);
+        assertTrue(!bot.isAtacando());
+
+        new ReglaMovimiento(new Random(23)).aplicar(mundo, 1_100L, 0.05);
+        new ReglaAtaqueBot().aplicar(mundo, 1_100L, 0.05);
+        assertTrue(bot.isAtacando());
+        assertNull(bot.getRuta());
+        assertEquals(19, objetivo.getEnergia());
+
+        Punto posicionDuranteAtaque = new Punto(bot.getPosicion().getX(), bot.getPosicion().getY());
+        new ReglaMovimiento(new Random(23)).aplicar(mundo, 1_150L, 0.05);
+        assertEquals(posicionDuranteAtaque, bot.getPosicion());
+
+        EstadoVisible estado = new ServicioVisibilidad().crearSnapshot(mundo, jugador);
+        var vistaBot = estado.animales.stream().filter(animal -> animal.id == bot.getId())
+                .findFirst().orElseThrow();
+        assertTrue(vistaBot.atacando);
+        assertEquals(objetivo.getId(), vistaBot.idObjetivo);
+        assertEquals(objetivo.getPosicion().getX(), vistaBot.objetivoX);
+        assertEquals(objetivo.getPosicion().getY(), vistaBot.objetivoY);
+
+        ubicar(objetivo, objetivo.getId(), 90, 50);
+        new ReglaAtaqueBot().aplicar(mundo, 1_200L, 0.05);
+        assertTrue(!bot.isAtacando());
+        assertSame(objetivo, bot.getObjetivo());
+        assertTrue(bot.getRuta() != null);
     }
 
     @Test
