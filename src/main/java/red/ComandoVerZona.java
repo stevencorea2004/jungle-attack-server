@@ -11,8 +11,8 @@ public class ComandoVerZona implements IComando {
             throw new IllegalStateException("La partida no está en juego");
         }
         DatosVerZona datos = (DatosVerZona) mensaje.getPayload(DatosVerZona.class);
-        if (datos == null || !jugador.puedeVer(datos.idZona)) {
-            throw new IllegalArgumentException("El jugador no tiene animales vivos en esa zona");
+        if (datos == null || jugador.getPartida().getMundo().getMapa().getZona(datos.idZona) == null) {
+            throw new IllegalArgumentException("La zona solicitada no existe");
         }
         jugador.setZonaVista(datos.idZona);
         jugador.getPartida().enviarEstado(jugador);

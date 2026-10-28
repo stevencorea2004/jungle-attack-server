@@ -12,6 +12,7 @@ import mapa.Camino;
 import mapa.MainMapa;
 import mapa.Zona;
 import model.Animal;
+import model.AnimalJugador;
 import model.Especie;
 import model.ManadaBot;
 import model.ManadaJugador;
@@ -184,6 +185,23 @@ public class Partida implements IObserver {
     }
 
     public synchronized void terminar(Jugador ganador) {
+        terminar(ganador, null);
+    }
+
+    public synchronized void abandonar(Jugador jugador) {
+        if (jugador == null || !jugadores.contains(jugador) || estado == EstadoPartida.TERMINADA) {
+            throw new IllegalArgumentException("El jugador no pertenece a una partida activa");
+        }
+        Jugador rival = getRival(jugador);
+        ManejadorCliente conexion = jugador.getConexion();
+        jugador.setConexion(null);
+        if (conexion != null) {
+            conexion.setJugador(null);
+        }
+        terminar(estado == EstadoPartida.EN_JUEGO ? rival : null, jugador);
+    }
+
+    private synchronized void terminar(Jugador ganador, Jugador noNotificar) {
         if (estado == EstadoPartida.TERMINADA) {
             return;
         }
@@ -201,7 +219,9 @@ public class Partida implements IObserver {
         for (Jugador jugador : getJugadores()) {
             ManejadorCliente conexion = jugador.getConexion();
             if (conexion != null) {
-                conexion.enviar(FabricaMensajes.crear(TipoMensaje.GAME_OVER, resumen));
+                if (jugador != noNotificar) {
+                    conexion.enviar(FabricaMensajes.crear(TipoMensaje.GAME_OVER, resumen));
+                }
                 conexion.setJugador(null);
             }
         }
@@ -300,6 +320,14 @@ public class Partida implements IObserver {
         vista.x = animal.getPosicion().getX();
         vista.y = animal.getPosicion().getY();
         vista.energia = animal.getEnergia();
+        if (animal instanceof AnimalJugador) {
+            AnimalJugador jugador = (AnimalJugador) animal;
+            Animal objetivo = jugador.getObjetivo();
+            vista.idObjetivo = objetivo == null ? null : objetivo.getId();
+            vista.objetivoX = objetivo == null ? null : objetivo.getPosicion().getX();
+            vista.objetivoY = objetivo == null ? null : objetivo.getPosicion().getY();
+            vista.atacando = jugador.isAtacando();
+        }
         return vista;
     }
 }

@@ -1,15 +1,22 @@
 package game;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+=======
+>>>>>>> ac82e85ab902aafa0ca92da386445ebb9d957952
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.awt.geom.Rectangle2D;
+import java.util.List;
 import java.util.Random;
 import mapa.BuscadorBFS;
+import mapa.Camino;
 import mapa.MainMapa;
+import mapa.Mapa;
+import mapa.Ruta;
 import mapa.Zona;
 import model.Animal;
 import model.AnimalBot;
@@ -109,6 +116,40 @@ class GameRulesTest {
     }
 
     @Test
+    void selectedPlayerAnimalMovesToTargetBeforeStartingAttack() {
+        MundoJuego mundo = new MundoJuego();
+        Mapa mapa = new Mapa();
+        mapa.agregarZona(zona(1));
+        mapa.agregarCamino(new Camino(1, 1,
+                List.of(new Punto(0, 50), new Punto(100, 50))));
+        mundo.setMapa(mapa);
+        Jugador jugador = new Jugador();
+        ManadaJugador manada = new ManadaJugador(Especie.JAGUAR, jugador);
+        ManadaBot bots = new ManadaBot(Especie.DANTA, 1);
+        manada.crearMiembros(zona(1), new Random(11));
+        bots.crearMiembros(zona(1), new Random(12));
+        mundo.getManadasJugador().add(manada);
+        mundo.getManadasBot().add(bots);
+
+        AnimalJugador atacante = (AnimalJugador) manada.getVivos().firstElement();
+        Animal objetivo = bots.getVivos().firstElement();
+        ubicar(atacante, 1, 10, 50);
+        ubicar(objetivo, 11, 90, 50);
+        atacante.setObjetivo(objetivo);
+        ReglaAtaqueJugador regla = new ReglaAtaqueJugador();
+
+        regla.aplicar(mundo, 1_000L, 0.05);
+        assertTrue(atacante.getRuta() != null);
+        assertTrue(!atacante.isAtacando());
+        atacante.avanzar(0.75);
+        regla.aplicar(mundo, 1_500L, 0.05);
+
+        assertTrue(atacante.isAtacando());
+        assertNull(atacante.getRuta());
+        assertEquals(8, objetivo.getEnergia());
+    }
+
+    @Test
     void coffeeAppliesPackDamageAndUpdatesPlayerCounterOnce() {
         MundoJuego mundo = new MundoJuego();
         Jugador jugador = new Jugador();
@@ -185,6 +226,34 @@ class GameRulesTest {
     }
 
     @Test
+    void playerViewFollowsAnAnimalAcrossARegionExit() {
+        Mapa mapa = new Mapa();
+        Zona primera = new Zona(1, new Rectangle2D.Double(0, 0, 100, 100));
+        Zona segunda = new Zona(2, new Rectangle2D.Double(100, 0, 100, 100));
+        mapa.agregarZona(primera);
+        mapa.agregarZona(segunda);
+        mapa.agregarCamino(new Camino(1, 2,
+                List.of(new Punto(50, 50), new Punto(100, 50), new Punto(150, 50))));
+
+        MundoJuego mundo = new MundoJuego();
+        mundo.setMapa(mapa);
+        Jugador jugador = new Jugador();
+        jugador.setZonaVista(1);
+        ManadaJugador manada = new ManadaJugador(Especie.JAGUAR, jugador);
+        manada.crearMiembros(primera, new Random(9));
+        jugador.setManada(manada);
+        mundo.getManadasJugador().add(manada);
+        Animal animal = manada.getVivos().firstElement();
+        animal.setUbicacion(animal.getId(), new Punto(99, 50), 1);
+        animal.setRuta(new Ruta(List.of(new Punto(100, 50), new Punto(101, 50))));
+
+        new ReglaMovimiento().aplicar(mundo, 1_000L, 1.0);
+
+        assertEquals(2, animal.getIdZona());
+        assertEquals(2, jugador.getZonaVista());
+    }
+
+    @Test
     void visibilitySnapshotContainsOnlyTheSelectedCurrentlyOccupiedZone() {
         MundoJuego mundo = new MundoJuego();
         Jugador jugador = new Jugador();
@@ -208,6 +277,33 @@ class GameRulesTest {
         assertEquals(10, snapshot.animalesVivos);
         assertEquals(10, snapshot.animales.size());
         assertTrue(snapshot.animales.stream().allMatch(animal -> animal.esMio));
+    }
+
+    @Test
+    void selectedZoneWithoutOwnAnimalsReturnsNoContentsForFogView() {
+        MundoJuego mundo = new MundoJuego();
+        Mapa mapa = new Mapa();
+        mapa.agregarZona(zona(1));
+        mapa.agregarZona(new Zona(2, new Rectangle2D.Double(100, 0, 100, 100)));
+        mundo.setMapa(mapa);
+
+        Jugador jugador = new Jugador();
+        ManadaJugador propia = new ManadaJugador(Especie.JAGUAR, jugador);
+        ManadaBot bots = new ManadaBot(Especie.DANTA, 2);
+        propia.crearMiembros(zona(1), new Random(17));
+        bots.crearMiembros(mapa.getZona(2), new Random(18));
+        jugador.setManada(propia);
+        jugador.setZonaVista(2);
+        mundo.getManadasJugador().add(propia);
+        mundo.getManadasBot().add(bots);
+
+        EstadoVisible snapshot = new ServicioVisibilidad().crearSnapshot(mundo, jugador);
+
+        assertEquals(2, snapshot.idZona);
+        assertEquals(List.of(1), snapshot.zonasVisibles);
+        assertTrue(snapshot.animales.isEmpty());
+        assertTrue(snapshot.tazas.isEmpty());
+        assertNull(snapshot.bandera);
     }
 
     private static Zona zona(int id) {

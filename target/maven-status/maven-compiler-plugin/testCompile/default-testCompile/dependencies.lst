@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 classpath:C:\Users\steve\OneDrive\Escritorio\Caso#2\jungle-attack-server\target\classes	80:4b99d8f094164b464fdeec294375484bb320e902d452b42b74b3bc3befa14e63
 classpath:C:\Users\steve\.m2\repository\com\google\code\gson\gson\2.11.0\gson-2.11.0.jar	298435:1792982954261
 classpath:C:\Users\steve\.m2\repository\com\google\errorprone\error_prone_annotations\2.27.0\error_prone_annotations-2.27.0.jar	19370:1792982954386
@@ -9,3 +10,16 @@ classpath:C:\Users\steve\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\ap
 classpath:C:\Users\steve\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.11.4\junit-jupiter-params-5.11.4.jar	591594:1792985877501
 classpath:C:\Users\steve\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.11.4\junit-jupiter-engine-5.11.4.jar	260117:1792985877472
 classpath:C:\Users\steve\.m2\repository\org\junit\platform\junit-platform-engine\1.11.4\junit-platform-engine-1.11.4.jar	246800:1792985877510
+=======
+classpath:C:\Users\Marfr\Desktop\Semestre_2\POO\Caso#2\jungle-attack-server\target\classes	81:39a9ae43fc0203f7e344385f10d1ee62faebfef5339704836a7be44b2aac06fa
+classpath:C:\Users\Marfr\.m2\repository\com\google\code\gson\gson\2.11.0\gson-2.11.0.jar	298435:1792964782859
+classpath:C:\Users\Marfr\.m2\repository\com\google\errorprone\error_prone_annotations\2.27.0\error_prone_annotations-2.27.0.jar	19370:1792964783239
+classpath:C:\Users\Marfr\.m2\repository\org\junit\jupiter\junit-jupiter\5.11.4\junit-jupiter-5.11.4.jar	6367:1792985159596
+classpath:C:\Users\Marfr\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.11.4\junit-jupiter-api-5.11.4.jar	216413:1792985159872
+classpath:C:\Users\Marfr\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar	14304:1792985159990
+classpath:C:\Users\Marfr\.m2\repository\org\junit\platform\junit-platform-commons\1.11.4\junit-platform-commons-1.11.4.jar	142008:1792985159820
+classpath:C:\Users\Marfr\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar	6806:1792985159711
+classpath:C:\Users\Marfr\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.11.4\junit-jupiter-params-5.11.4.jar	591594:1792985160005
+classpath:C:\Users\Marfr\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.11.4\junit-jupiter-engine-5.11.4.jar	260117:1792985159999
+classpath:C:\Users\Marfr\.m2\repository\org\junit\platform\junit-platform-engine\1.11.4\junit-platform-engine-1.11.4.jar	246800:1792985160014
+>>>>>>> ac82e85ab902aafa0ca92da386445ebb9d957952

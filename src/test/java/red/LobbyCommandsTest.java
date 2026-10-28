@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import game.Jugador;
+import mapa.Zona;
 import model.Animal;
 import model.AnimalJugador;
 import model.Especie;
@@ -30,6 +32,8 @@ import model.Punto;
 import partida.AdministradorPartidas;
 import partida.EstadoPartida;
 import partida.Partida;
+import red.DatosVerZona;
+import red.EstadoVisible;
 
 class LobbyCommandsTest {
     private ServidorJuego servidor;
@@ -45,6 +49,7 @@ class LobbyCommandsTest {
         enrutador.registrar(TipoMensaje.MOVE_ANIMALS, new ComandoMover());
         enrutador.registrar(TipoMensaje.ATTACK, new ComandoAtacar());
         enrutador.registrar(TipoMensaje.VIEW_ZONE, new ComandoVerZona());
+        enrutador.registrar(TipoMensaje.LEAVE_MATCH, new ComandoSalirPartida());
         servidor = new ServidorJuego(0, administrador, enrutador);
         servidor.iniciar();
     }
@@ -115,6 +120,20 @@ class LobbyCommandsTest {
         assertEquals(2, partida.getMundo().getManadasJugador().size());
         assertEquals(5, partida.getMundo().getManadasBot().size());
 
+        Jugador anfitrionModelo = partida.getJugadores().get(0);
+        int zonaEnNiebla = partida.getMundo().getMapa().getZonas().stream()
+                .mapToInt(Zona::getId)
+                .filter(idZona -> !anfitrionModelo.puedeVer(idZona))
+                .findFirst()
+                .orElseThrow();
+        DatosVerZona explorar = new DatosVerZona();
+        explorar.idZona = zonaEnNiebla;
+        anfitrion.enviar(TipoMensaje.VIEW_ZONE, explorar);
+        EstadoVisible estadoExplorado = leerEstadoZona(anfitrion, zonaEnNiebla);
+        assertEquals(zonaEnNiebla, estadoExplorado.idZona);
+        assertTrue(estadoExplorado.animales.isEmpty());
+        assertTrue(!estadoExplorado.zonasVisibles.contains(zonaEnNiebla));
+
         AnimalJugador atacante = (AnimalJugador) partida.getJugadores().get(0)
                 .getManada().getVivos().firstElement();
         Punto posicionInicial = new Punto(atacante.getPosicion().getX(), atacante.getPosicion().getY());
@@ -167,6 +186,34 @@ class LobbyCommandsTest {
         invitado.enviar(TipoMensaje.SELECT_ANIMAL, elegir(Especie.JAGUAR));
         Mensaje error = invitado.leer();
         assertEquals(TipoMensaje.ERROR, error.getTipo());
+    }
+
+    @Test
+    void salirDuranteLaSeleccionLiberaLaConexionYNotificaAlRival() throws Exception {
+        ClientePrueba anfitrion = conectar();
+        anfitrion.enviar(TipoMensaje.CREATE_MATCH, crear("Ana"));
+        DatosPartidaCreada creada = (DatosPartidaCreada) anfitrion.leer()
+                .getPayload(DatosPartidaCreada.class);
+
+        ClientePrueba invitado = conectar();
+        DatosUnirse solicitud = new DatosUnirse();
+        solicitud.nickname = "Luis";
+        solicitud.codigo = creada.codigo;
+        invitado.enviar(TipoMensaje.JOIN_MATCH, solicitud);
+        anfitrion.leer();
+        invitado.leer();
+        anfitrion.leer();
+        invitado.leer();
+
+        anfitrion.enviar(TipoMensaje.LEAVE_MATCH, null);
+        Mensaje avisoRival = invitado.leer();
+        assertEquals(TipoMensaje.GAME_OVER, avisoRival.getTipo());
+        ResumenPartida resumen = (ResumenPartida) avisoRival.getPayload(ResumenPartida.class);
+        assertEquals("", resumen.ganador);
+        assertEquals(0, servidor.getAdministrador().getCantidadActivas());
+
+        anfitrion.enviar(TipoMensaje.CREATE_MATCH, crear("Ana"));
+        assertEquals(TipoMensaje.MATCH_CREATED, anfitrion.leer().getTipo());
     }
 
     @Test
@@ -273,6 +320,18 @@ class LobbyCommandsTest {
     private static DatosSeleccion seleccionar(Mensaje mensaje) {
         assertEquals(TipoMensaje.ANIMAL_SELECTION, mensaje.getTipo());
         return (DatosSeleccion) mensaje.getPayload(DatosSeleccion.class);
+    }
+
+    private static EstadoVisible leerEstadoZona(ClientePrueba cliente, int zonaEsperada) throws IOException {
+        while (true) {
+            Mensaje mensaje = cliente.leer();
+            if (mensaje.getTipo() == TipoMensaje.STATE_UPDATE) {
+                EstadoVisible estado = (EstadoVisible) mensaje.getPayload(EstadoVisible.class);
+                if (estado.idZona == zonaEsperada) {
+                    return estado;
+                }
+            }
+        }
     }
 
     private static final class ClientePrueba implements AutoCloseable {

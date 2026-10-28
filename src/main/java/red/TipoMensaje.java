@@ -7,6 +7,7 @@ public enum TipoMensaje {
     MOVE_ANIMALS,
     ATTACK,
     VIEW_ZONE,
+    LEAVE_MATCH,
     MATCH_CREATED,
     MATCH_JOINED,
     ERROR,
